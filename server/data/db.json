@@ -1,0 +1,492 @@
+{
+  "products": [
+    {
+      "id": 13,
+      "name": "aaqq",
+      "slug": "aaqq",
+      "category": "avtomatlar",
+      "categoryName": "Avtomatlar va UZO",
+      "brand": "1",
+      "price": 22,
+      "oldPrice": 0,
+      "wholesalePrice": 11,
+      "minWholesaleQty": 5,
+      "stock": 11,
+      "unit": "dona",
+      "image": "1",
+      "description": "1",
+      "specs": {},
+      "rating": 5,
+      "reviewsCount": 1,
+      "isFeatured": true,
+      "isPopular": false
+    },
+    {
+      "id": 1,
+      "name": "Avtomat uzgich LUX VOLT 1P 16A C-tipli",
+      "slug": "avtomat-lux-volt-1p-16a",
+      "category": "avtomatlar",
+      "categoryName": "Avtomatlar va UZO",
+      "brand": "LUX VOLT",
+      "price": 22000,
+      "oldPrice": 28000,
+      "wholesalePrice": 17500,
+      "minWholesaleQty": 12,
+      "stock": 445,
+      "unit": "dona",
+      "image": "/images/products/avtomat-1p.png",
+      "description": "LUX VOLT 16A 1-qutbli avtomat uzgich xonadonlar va ofislar uchun ortiqcha yuklanish va qisqa tutashuvdan ishonchli himoya ta'minlaydi. Mis kontaktli va olovga chidamli korpus.",
+      "specs": {
+        "Nominal tok": "16 A",
+        "Qutblar soni": "1P",
+        "O'chirish xususiyati": "C tipli",
+        "Uzgich quvvati": "4.5 kA",
+        "Kafolat": "3 yil rasmiy"
+      },
+      "rating": 4.9,
+      "reviewsCount": 38,
+      "isFeatured": true,
+      "isPopular": true
+    },
+    {
+      "id": 2,
+      "name": "Avtomat uzgich LUX VOLT 3P 63A C-tipli",
+      "slug": "avtomat-lux-volt-3p-63a",
+      "category": "avtomatlar",
+      "categoryName": "Avtomatlar va UZO",
+      "brand": "LUX VOLT",
+      "price": 78000,
+      "oldPrice": 92000,
+      "wholesalePrice": 65000,
+      "minWholesaleQty": 6,
+      "stock": 180,
+      "unit": "dona",
+      "image": "/images/products/avtomat-3p.png",
+      "description": "3 fazali (3P) 63A kuchli avtomat uzgich ishlab chiqarish korxonalari, kuchli dvigatellar va asosiy kirish shchitlari uchun mo'ljallangan.",
+      "specs": {
+        "Nominal tok": "63 A",
+        "Qutblar soni": "3P (3 fazali)",
+        "O'chirish xususiyati": "C tipli",
+        "Uzgich quvvati": "6.0 kA",
+        "Kafolat": "3 yil rasmiy"
+      },
+      "rating": 4.8,
+      "reviewsCount": 24,
+      "isFeatured": true,
+      "isPopular": true
+    },
+    {
+      "id": 3,
+      "name": "Differensial avtomat (UZO) Schneider Easy9 2P 25A 30mA",
+      "slug": "uzo-schneider-easy9-25a",
+      "category": "avtomatlar",
+      "categoryName": "Avtomatlar va UZO",
+      "brand": "Schneider Electric",
+      "price": 145000,
+      "oldPrice": 165000,
+      "wholesalePrice": 128000,
+      "minWholesaleQty": 5,
+      "stock": 95,
+      "unit": "dona",
+      "image": "/images/products/uzo-schneider.png",
+      "description": "Insonni elektr toki urishidan va yong'indan saqlovchi original Schneider Electric differensial himoya uskunasi. 30mA sezgirlik.",
+      "specs": {
+        "Nominal tok": "25 A",
+        "Qutblar": "2P (1P+N)",
+        "Oqish toki": "30 mA",
+        "Brend vatani": "Fransiya"
+      },
+      "rating": 5,
+      "reviewsCount": 42,
+      "isFeatured": false,
+      "isPopular": true
+    },
+    {
+      "id": 4,
+      "name": "Quvvat kabeli VVG-P-ng(A)-LS 3x2.5 mm² Andijonkabel (mis)",
+      "slug": "kabel-vvg-png-3x25-andijon",
+      "category": "kabellar",
+      "categoryName": "Kabellar va Simlar",
+      "brand": "Andijon Kabel",
+      "price": 13800,
+      "oldPrice": 15500,
+      "wholesalePrice": 11500,
+      "minWholesaleQty": 100,
+      "stock": 2400,
+      "unit": "metr",
+      "image": "/images/products/kabel-vvg.png",
+      "description": "100% toza misdan tayyorlangan, yonmaydigan (ng) va tutun chiqarmaydigan (LS) yuqori sifatli rozetka kabeli. GOST sertifikati mavjud.",
+      "specs": {
+        "Tomirlar soni va kesimi": "3 × 2.5 mm²",
+        "Material": "Toza elektrolitik mis",
+        "Qobiq turi": "Yonmaydigan PVX (ng-LS)",
+        "Standart": "GOST 31996-2012"
+      },
+      "rating": 4.9,
+      "reviewsCount": 67,
+      "isFeatured": true,
+      "isPopular": true
+    },
+    {
+      "id": 5,
+      "name": "SIP-4 2x16 mm² O'z-Kabel Alyumin havo kabeli",
+      "slug": "kabel-sip-4-2x16",
+      "category": "kabellar",
+      "categoryName": "Kabellar va Simlar",
+      "brand": "O'z-kabel",
+      "price": 5400,
+      "oldPrice": 6200,
+      "wholesalePrice": 4600,
+      "minWholesaleQty": 200,
+      "stock": 5000,
+      "unit": "metr",
+      "image": "/images/products/kabel-sip.png",
+      "description": "Ustundan xonadonga elektr tarmog'ini olib kirish uchun qora nurga chidamli polietilen qobiqli mustahkam o'ziyurar kabel.",
+      "specs": {
+        "Kesimi": "2 × 16 mm²",
+        "Tomir materiali": "Alyumin",
+        "Izolyatsiya": "Svetostabilizatsiyalangan polietilen"
+      },
+      "rating": 4.7,
+      "reviewsCount": 19,
+      "isFeatured": false,
+      "isPopular": true
+    },
+    {
+      "id": 6,
+      "name": "Magnit kontaktor CHINT NXC-40 220V 40A",
+      "slug": "kontaktor-chint-nxc-40",
+      "category": "kontaktorlar",
+      "categoryName": "Boshqaruv uskunalari",
+      "brand": "CHINT",
+      "price": 185000,
+      "oldPrice": 210000,
+      "wholesalePrice": 155000,
+      "minWholesaleQty": 4,
+      "stock": 65,
+      "unit": "dona",
+      "image": "/images/products/kontaktor-chint.png",
+      "description": "Nasoslar, ventilyatsiya, sanoat kompressorlari va elektr dvigatellarini masofadan boshqarish uchun ishonchli CHINT kontaktori.",
+      "specs": {
+        "Nominal tok": "40 A (AC-3)",
+        "G‘altak kuchlanishi": "220V AC",
+        "Yordamchi kontaktlar": "1NO + 1NC"
+      },
+      "rating": 4.8,
+      "reviewsCount": 15,
+      "isFeatured": false,
+      "isPopular": true
+    },
+    {
+      "id": 7,
+      "name": "Modulli metall shchit LUX VOLT IP54 24 ta o'rinli",
+      "slug": "shchit-metall-lux-volt-24",
+      "category": "shchitlar",
+      "categoryName": "Shchitlar va Qutilar",
+      "brand": "LUX VOLT",
+      "price": 135000,
+      "oldPrice": 155000,
+      "wholesalePrice": 110000,
+      "minWholesaleQty": 5,
+      "stock": 120,
+      "unit": "dona",
+      "image": "/images/products/shchit-metal.png",
+      "description": "Chang va namlikdan himoyalangan (IP54), kukunli bo'yoq bilan qoplangan, qulflanadigan 24 o'rinli mustahkam metall taqsimlash qutisi.",
+      "specs": {
+        "Sig'imi": "24 modul (2 qator)",
+        "Himoya darajasi": "IP54",
+        "Material": "0.8mm metall qatlam",
+        "To'plam": "DIN-reyka, shina, qulf va kalit"
+      },
+      "rating": 4.9,
+      "reviewsCount": 31,
+      "isFeatured": true,
+      "isPopular": true
+    },
+    {
+      "id": 8,
+      "name": "Germetik plastik boks IP65 LUX VOLT 12 modulli",
+      "slug": "boks-plastik-lux-volt-12",
+      "category": "shchitlar",
+      "categoryName": "Shchitlar va Qutilar",
+      "brand": "LUX VOLT",
+      "price": 68000,
+      "oldPrice": 82000,
+      "wholesalePrice": 54000,
+      "minWholesaleQty": 8,
+      "stock": 140,
+      "unit": "dona",
+      "image": "/images/products/boks-plastik.png",
+      "description": "Ochiq havoda va nam xonalarda o'rnatish uchun mo'ljallangan germetik IP65 plastik quti. Shaffof qoraytirilgan qopqoqli.",
+      "specs": {
+        "Sig'imi": "12 modul",
+        "Himoya darajasi": "IP65 germetik",
+        "Material": "ABS zarbaga chidamli plastik"
+      },
+      "rating": 4.8,
+      "reviewsCount": 22,
+      "isFeatured": false,
+      "isPopular": false
+    },
+    {
+      "id": 9,
+      "name": "Kuchlanish nazorat relesi ZUBR D2-40 Red (40A raqamli himoya)",
+      "slug": "rele-zubr-d2-40",
+      "category": "stabilizatorlar",
+      "categoryName": "Stabilizatorlar va Rele",
+      "brand": "ZUBR",
+      "price": 260000,
+      "oldPrice": 295000,
+      "wholesalePrice": 230000,
+      "minWholesaleQty": 4,
+      "stock": 80,
+      "unit": "dona",
+      "image": "/images/products/zubr-rele.png",
+      "description": "Kuchlanish sakrashlari va nol uzilishidan maishiy texnikalarni (muzlatgich, televizor, konditsioner) 100% himoya qiluvchi tezyurar raqamli rele.",
+      "specs": {
+        "Nominal tok": "40 A",
+        "Chegaralar": "120 - 280 V",
+        "O'chirish tezligi": "0.03 soniya",
+        "Displey": "Raqamli qizil LED indikator"
+      },
+      "rating": 5,
+      "reviewsCount": 54,
+      "isFeatured": true,
+      "isPopular": true
+    },
+    {
+      "id": 10,
+      "name": "Sanoat LED Projektori LUX VOLT 100W IP66 6500K",
+      "slug": "led-lux-volt-100w",
+      "category": "led-yoritish",
+      "categoryName": "LED Sanoat yoritish",
+      "brand": "LUX VOLT",
+      "price": 125000,
+      "oldPrice": 150000,
+      "wholesalePrice": 98000,
+      "minWholesaleQty": 6,
+      "stock": 190,
+      "unit": "dona",
+      "image": "/images/products/led-100w.png",
+      "description": "Hovli, omborxona, avtoservis va qurilish maydonchalarini yorqin yoritish uchun kuchli alyumin korpusli 100W IP66 projektor.",
+      "specs": {
+        "Quvvat": "100 Watt",
+        "Yorug'lik oqimi": "10 000 Lumen",
+        "Rang harorati": "6500K (Sovuq oq)",
+        "Himoya sinfi": "IP66 suv va chang o'tkazmas"
+      },
+      "rating": 4.9,
+      "reviewsCount": 29,
+      "isFeatured": true,
+      "isPopular": true
+    },
+    {
+      "id": 11,
+      "name": "Sanoat LED Projektori LUX VOLT 200W IP66 Super Bright",
+      "slug": "led-lux-volt-200w",
+      "category": "led-yoritish",
+      "categoryName": "LED Sanoat yoritish",
+      "brand": "LUX VOLT",
+      "price": 240000,
+      "oldPrice": 285000,
+      "wholesalePrice": 195000,
+      "minWholesaleQty": 4,
+      "stock": 75,
+      "unit": "dona",
+      "image": "/images/products/led-200w.png",
+      "description": "Stadionlar, katta sanoat binolari va avtoturargohlar uchun super yorqin 200W LED projektor. Kuchaytirilgan sovutish radiatori bilan.",
+      "specs": {
+        "Quvvat": "200 Watt",
+        "Yorug'lik oqimi": "22 000 Lumen",
+        "Rang harorati": "6500K",
+        "Kafolat": "2 yil"
+      },
+      "rating": 4.8,
+      "reviewsCount": 17,
+      "isFeatured": false,
+      "isPopular": true
+    },
+    {
+      "id": 12,
+      "name": "Sanoat rozetkasi 3P+N+E 32A IP44 IEK (qizil 380V)",
+      "slug": "rozetka-sanoat-32a-iek",
+      "category": "rozetkalar",
+      "categoryName": "Rozetka va Kalitlar",
+      "brand": "IEK",
+      "price": 42000,
+      "oldPrice": 50000,
+      "wholesalePrice": 34000,
+      "minWholesaleQty": 10,
+      "stock": 160,
+      "unit": "dona",
+      "image": "/images/products/rozetka-sanoat.png",
+      "description": "Uch fazali payvandlash apparatlari, dastgohlar va generatorlarni ulash uchun 380V 32A sanoat rozetkasi.",
+      "specs": {
+        "Nominal tok": "32 A",
+        "Kuchlanish": "380 - 415 V",
+        "Qutblar": "3P + N + PE (5 kontaktli)",
+        "Himoya": "IP44 qopqoqli"
+      },
+      "rating": 4.7,
+      "reviewsCount": 13,
+      "isFeatured": false,
+      "isPopular": false
+    }
+  ],
+  "categories": [
+    {
+      "id": "avtomatlar",
+      "name": "Avtomatlar va UZO",
+      "slug": "avtomatlar",
+      "icon": "Zap",
+      "count": 145
+    },
+    {
+      "id": "kabellar",
+      "name": "Kabellar va Simlar",
+      "slug": "kabellar",
+      "icon": "Cable",
+      "count": 210
+    },
+    {
+      "id": "shchitlar",
+      "name": "Shchitlar va Qutilar",
+      "slug": "shchitlar",
+      "icon": "Shield",
+      "count": 85
+    },
+    {
+      "id": "kontaktorlar",
+      "name": "Boshqaruv uskunalari",
+      "slug": "kontaktorlar",
+      "icon": "Cpu",
+      "count": 64
+    },
+    {
+      "id": "stabilizatorlar",
+      "name": "Stabilizatorlar va Rele",
+      "slug": "stabilizatorlar",
+      "icon": "Activity",
+      "count": 52
+    },
+    {
+      "id": "rozetkalar",
+      "name": "Rozetka va Kalitlar",
+      "slug": "rozetkalar",
+      "icon": "Power",
+      "count": 98
+    },
+    {
+      "id": "led-yoritish",
+      "name": "LED Sanoat yoritish",
+      "slug": "led-yoritish",
+      "icon": "Sun",
+      "count": 120
+    },
+    {
+      "id": "asboblar",
+      "name": "Asbob-uskunalar",
+      "slug": "asboblar",
+      "icon": "Wrench",
+      "count": 43
+    }
+  ],
+  "orders": [
+    {
+      "id": "ORD-693435",
+      "customerName": "Test Foydalanuvchi",
+      "phone": "+998 90 999 88 77",
+      "city": "Toshkent",
+      "address": "Chilonzor 9-mavze, 15-uy",
+      "deliveryMethod": "yetkazib_berish",
+      "paymentMethod": "naqd",
+      "notes": "Test buyurtmasi",
+      "items": [
+        {
+          "productId": 1,
+          "name": "Avtomat uzgich LUX VOLT 1P 16A",
+          "price": 17500,
+          "quantity": 5,
+          "unit": "dona",
+          "total": 87500
+        }
+      ],
+      "totalAmount": 127500,
+      "status": "yangi",
+      "createdAt": "2026-10-30T13:40:45.495Z"
+    },
+    {
+      "id": "ORD-984210",
+      "customerName": "Akmal Karimov",
+      "phone": "+998 90 123 45 67",
+      "city": "Toshkent",
+      "address": "Yunusobod 14-mavze, 22-uy",
+      "deliveryMethod": "yetkazib_berish",
+      "paymentMethod": "naqd",
+      "notes": "Iltimos, soat 14:00 dan keyin olib keling",
+      "items": [
+        {
+          "productId": 1,
+          "name": "Avtomat uzgich LUX VOLT 1P 16A C-tipli",
+          "price": 17500,
+          "quantity": 20,
+          "unit": "dona",
+          "total": 350000
+        },
+        {
+          "productId": 4,
+          "name": "Quvvat kabeli VVG-P-ng(A)-LS 3x2.5 mm² Andijonkabel (mis)",
+          "price": 11500,
+          "quantity": 100,
+          "unit": "metr",
+          "total": 1150000
+        }
+      ],
+      "totalAmount": 1500000,
+      "status": "qabul_qilindi",
+      "createdAt": "2026-10-30T09:32:15.820Z"
+    },
+    {
+      "id": "ORD-984211",
+      "customerName": "Javohir Toshmatov (Prorab)",
+      "phone": "+998 99 876 54 32",
+      "city": "Toshkent",
+      "address": "O'rikzor do'kondan olib ketiladi",
+      "deliveryMethod": "olib_ketish",
+      "paymentMethod": "hisob_raqam",
+      "notes": "Kompaniya nomiga schet-faktura tayyorlab qo'ying",
+      "items": [
+        {
+          "productId": 7,
+          "name": "Modulli metall shchit LUX VOLT IP54 24 ta o'rinli",
+          "price": 110000,
+          "quantity": 8,
+          "unit": "dona",
+          "total": 880000
+        },
+        {
+          "productId": 10,
+          "name": "Sanoat LED Projektori LUX VOLT 100W IP66 6500K",
+          "price": 98000,
+          "quantity": 10,
+          "unit": "dona",
+          "total": 980000
+        }
+      ],
+      "totalAmount": 1860000,
+      "status": "yangi",
+      "createdAt": "2026-10-30T12:32:15.826Z"
+    }
+  ],
+  "settings": {
+    "storeName": "OPTOM elektro",
+    "storeTagline": "Elektr jihozlari va kabellarning ulgurji va chakana savdo markazi",
+    "storePhone": "+998 71 200-00-00",
+    "storeAddress": "Toshkent sh., Chilonzor tumani, O'rikzor ulgurji bozori, 4-blok 18-do'kon",
+    "storeTelegram": "https://t.me/optomelektro",
+    "telegramBotToken": "8954426665:AAHJc94iLVpctZ0mPJfcSWqkCg4ejMSidl8",
+    "telegramChatId": "8038275900",
+    "freeDeliveryThreshold": 5000000,
+    "deliveryFee": 40000
+  }
+}
