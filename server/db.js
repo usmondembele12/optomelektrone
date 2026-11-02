@@ -4,7 +4,16 @@ const path = require('path');
 const isVercel = !!process.env.VERCEL;
 const DB_DIR = isVercel ? '/tmp' : path.join(__dirname, 'data');
 const DB_FILE = path.join(DB_DIR, 'db.json');
-const SEED_FILE = path.join(__dirname, 'data', 'db.json');
+
+function resolveSeedFilePath() {
+  const seedInCwd = path.join(process.cwd(), 'server', 'data', 'db.json');
+  try {
+    if (fs.existsSync(seedInCwd)) return seedInCwd;
+  } catch (_) {}
+  return path.join(__dirname, 'data', 'db.json');
+}
+
+const SEED_FILE = resolveSeedFilePath();
 
 const INITIAL_CATEGORIES = [
   { id: 'avtomatlar', name: 'Avtomatlar va UZO', slug: 'avtomatlar', icon: 'Zap', count: 145 },
@@ -337,12 +346,12 @@ const INITIAL_SETTINGS = {
   storePhone: '+998 71 200-00-00',
   storeAddress: "Toshkent sh., Chilonzor tumani, O'rikzor ulgurji bozori, 4-blok 18-do'kon",
   storeTelegram: 'https://t.me/optomelektro',
-  telegramBotToken: '', // Enter bot token here or via admin panel
-  telegramChatId: '',   // Enter chat id here or via admin panel
-  freeDeliveryThreshold: 5000000, // 5 mln so'mdan yuqori xarid bepul yetkaziladi
+  telegramBotToken: '8954426665:AAHJc94iLVpctZ0mPJfcSWqkCg4ejMSidl8',
+  telegramChatId: '8038275900',
+  freeDeliveryThreshold: 5000000,
   deliveryFee: 40000,
-  adminUsername: 'admin',
-  adminPassword: 'admin123'
+  adminUsername: 'foden',
+  adminPassword: 'usmon47'
 };
 
 const INITIAL_ORDERS = [
@@ -415,12 +424,18 @@ function initDb() {
     try { fs.mkdirSync(DB_DIR, { recursive: true }); } catch (_) {}
   }
 
+  const seed = resolveSeedFilePath();
+
   if (!fs.existsSync(DB_FILE)) {
-    if (fs.existsSync(SEED_FILE)) {
+    if (seed && fs.existsSync(seed)) {
       try {
-        const seedRaw = fs.readFileSync(SEED_FILE, 'utf-8');
+        const seedRaw = fs.readFileSync(seed, 'utf-8');
         fs.writeFileSync(DB_FILE, seedRaw, 'utf-8');
-        return JSON.parse(seedRaw);
+        const parsedSeed = JSON.parse(seedRaw);
+        if (parsedSeed.settings && !parsedSeed.settings.telegramBotToken) {
+          parsedSeed.settings = { ...INITIAL_SETTINGS, ...parsedSeed.settings };
+        }
+        return parsedSeed;
       } catch (_) {}
     }
     const data = {
@@ -435,7 +450,11 @@ function initDb() {
 
   try {
     const raw = fs.readFileSync(DB_FILE, 'utf-8');
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (!parsed.settings || !parsed.settings.telegramBotToken) {
+      parsed.settings = { ...INITIAL_SETTINGS, ...(parsed.settings || {}) };
+    }
+    return parsed;
   } catch (err) {
     console.error('Error reading db.json, reinitializing:', err);
     const data = {
@@ -607,7 +626,15 @@ function updateOrderStatus(id, status) {
 // Settings
 function getSettings() {
   const db = readDb();
-  return { ...INITIAL_SETTINGS, ...(db.settings || {}) };
+  const current = db.settings || {};
+  return {
+    ...INITIAL_SETTINGS,
+    ...current,
+    telegramBotToken: (current.telegramBotToken && current.telegramBotToken.trim()) || INITIAL_SETTINGS.telegramBotToken,
+    telegramChatId: (current.telegramChatId && String(current.telegramChatId).trim()) || INITIAL_SETTINGS.telegramChatId,
+    adminUsername: (current.adminUsername && current.adminUsername.trim()) || INITIAL_SETTINGS.adminUsername,
+    adminPassword: (current.adminPassword && current.adminPassword.trim()) || INITIAL_SETTINGS.adminPassword
+  };
 }
 
 function updateSettings(newSettings) {

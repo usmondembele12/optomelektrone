@@ -1,24 +1,45 @@
 {
   "products": [
     {
-      "id": 13,
+      "id": 14,
       "name": "aaqq",
       "slug": "aaqq",
       "category": "avtomatlar",
       "categoryName": "Avtomatlar va UZO",
-      "brand": "1",
-      "price": 22,
+      "brand": "khg",
+      "price": -1,
       "oldPrice": 0,
-      "wholesalePrice": 11,
+      "wholesalePrice": 35,
       "minWholesaleQty": 5,
-      "stock": 11,
+      "stock": 6,
       "unit": "dona",
-      "image": "1",
-      "description": "1",
+      "image": "/images/products/avtomat-1p.png",
+      "description": "",
       "specs": {},
       "rating": 5,
       "reviewsCount": 1,
-      "isFeatured": true,
+      "isFeatured": false,
+      "isPopular": false
+    },
+    {
+      "id": 13,
+      "name": "Lan kabel",
+      "slug": "lan-kabel",
+      "category": "kabellar",
+      "categoryName": "Kabellar va Simlar",
+      "brand": "1234",
+      "price": 1234,
+      "oldPrice": 0,
+      "wholesalePrice": 1234,
+      "minWholesaleQty": 5,
+      "stock": 9,
+      "unit": "metr",
+      "image": "/images/products/avtomat-1p.png",
+      "description": "",
+      "specs": {},
+      "rating": 5,
+      "reviewsCount": 1,
+      "isFeatured": false,
       "isPopular": false
     },
     {
@@ -32,7 +53,7 @@
       "oldPrice": 28000,
       "wholesalePrice": 17500,
       "minWholesaleQty": 12,
-      "stock": 445,
+      "stock": 442,
       "unit": "dona",
       "image": "/images/products/avtomat-1p.png",
       "description": "LUX VOLT 16A 1-qutbli avtomat uzgich xonadonlar va ofislar uchun ortiqcha yuklanish va qisqa tutashuvdan ishonchli himoya ta'minlaydi. Mis kontaktli va olovga chidamli korpus.",
@@ -393,6 +414,29 @@
   ],
   "orders": [
     {
+      "id": "ORD-103326",
+      "customerName": "Sardorbek Aliyev",
+      "phone": "+998 97 123 45 67",
+      "city": "Toshkent",
+      "address": "Uchtepa tumani, 12-mavze",
+      "deliveryMethod": "yetkazib_berish",
+      "paymentMethod": "naqd",
+      "notes": "Qo'ng'iroq qilib keling",
+      "items": [
+        {
+          "productId": 1,
+          "name": "Avtomat uzgich LUX VOLT 1P 16A C-tipli",
+          "price": 22000,
+          "quantity": 3,
+          "unit": "dona",
+          "total": 66000
+        }
+      ],
+      "totalAmount": 106000,
+      "status": "yangi",
+      "createdAt": "2026-11-02T14:10:33.369Z"
+    },
+    {
       "id": "ORD-693435",
       "customerName": "Test Foydalanuvchi",
       "phone": "+998 90 999 88 77",
@@ -412,7 +456,7 @@
         }
       ],
       "totalAmount": 127500,
-      "status": "yangi",
+      "status": "yetkazilmoqda",
       "createdAt": "2026-10-30T13:40:45.495Z"
     },
     {
@@ -474,7 +518,7 @@
         }
       ],
       "totalAmount": 1860000,
-      "status": "yangi",
+      "status": "yetkazilmoqda",
       "createdAt": "2026-10-30T12:32:15.826Z"
     }
   ],
@@ -487,6 +531,8 @@
     "telegramBotToken": "8954426665:AAHJc94iLVpctZ0mPJfcSWqkCg4ejMSidl8",
     "telegramChatId": "8038275900",
     "freeDeliveryThreshold": 5000000,
-    "deliveryFee": 40000
+    "deliveryFee": 40000,
+    "adminUsername": "foden",
+    "adminPassword": "usmon47"
   }
 }
