@@ -1,6 +1,27 @@
 {
   "products": [
     {
+      "id": 13,
+      "name": "aaqq",
+      "slug": "aaqq",
+      "category": "avtomatlar",
+      "categoryName": "Avtomatlar va UZO",
+      "brand": "thf",
+      "price": 24,
+      "oldPrice": 0,
+      "wholesalePrice": 46,
+      "minWholesaleQty": 5,
+      "stock": 24,
+      "unit": "dona",
+      "image": "/images/products/avtomat-1p.png",
+      "description": "",
+      "specs": {},
+      "rating": 5,
+      "reviewsCount": 1,
+      "isFeatured": false,
+      "isPopular": false
+    },
+    {
       "id": 1,
       "name": "Avtomat uzgich LUX VOLT 1P 16A C-tipli",
       "slug": "avtomat-lux-volt-1p-16a",

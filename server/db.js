@@ -511,7 +511,7 @@ function getProductById(id) {
 
 function addProduct(productData) {
   const db = readDb();
-  const nextId = db.products.length > 0 ? Math.max(...db.products.map(p => Number(p.id) || 0)) + 1 : 1;
+  const nextId = productData.id || (db.products.length > 0 ? Math.max(...db.products.map(p => Number(p.id) || 0)) + 1 : 1);
   const newProduct = {
     id: nextId,
     name: productData.name,

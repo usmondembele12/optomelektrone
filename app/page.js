@@ -55,14 +55,40 @@ export default function HomePage() {
 
   const productsRef = useRef(null);
 
+  // Helper to merge local client overrides (additions, edits, deletions)
+  const applyClientOverrides = (apiProducts) => {
+    if (typeof window === 'undefined') return apiProducts || [];
+    try {
+      const deletedIds = JSON.parse(localStorage.getItem('optom_deleted_product_ids') || '[]').map(String);
+      const customProds = JSON.parse(localStorage.getItem('optom_custom_products') || '[]');
+
+      let list = (apiProducts || []).filter(p => !deletedIds.includes(String(p.id)));
+
+      for (const c of customProds) {
+        if (deletedIds.includes(String(c.id))) continue;
+        const idx = list.findIndex(p => String(p.id) === String(c.id));
+        if (idx !== -1) {
+          list[idx] = { ...list[idx], ...c };
+        } else {
+          list.unshift(c);
+        }
+      }
+      return list;
+    } catch (_) {
+      return apiProducts || [];
+    }
+  };
+
   // Load Initial Data
   const loadData = async () => {
     try {
       const [prodRes, catRes] = await Promise.all([
-        fetch('/api/products?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()),
-        fetch('/api/categories?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json())
+        fetch('/api/products?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
+        fetch('/api/categories?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => [])
       ]);
-      if (Array.isArray(prodRes)) setProducts(prodRes);
+      const initialList = Array.isArray(prodRes) && prodRes.length > 0 ? prodRes : products;
+      const mergedProducts = applyClientOverrides(initialList);
+      setProducts(mergedProducts);
       if (Array.isArray(catRes)) setCategories(catRes);
     } catch (err) {
       console.error('Failed to load API data:', err);
@@ -72,16 +98,52 @@ export default function HomePage() {
   };
 
   useEffect(() => {
+    // 1. Immediately apply local overrides so newly added / deleted products are instantly shown
+    try {
+      const custom = JSON.parse(localStorage.getItem('optom_custom_products') || '[]');
+      const deleted = JSON.parse(localStorage.getItem('optom_deleted_product_ids') || '[]');
+      if (custom.length > 0 || deleted.length > 0) {
+        setProducts(prev => applyClientOverrides(prev));
+      }
+    } catch (_) {}
+
     loadData();
 
-    // Auto-refresh when tab is focused or periodically
+    // Auto-refresh when tab is focused
     const handleFocus = () => loadData();
     window.addEventListener('focus', handleFocus);
+
+    // Real-time BroadcastChannel sync across tabs
+    const syncChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('optom_sync') : null;
+    if (syncChannel) {
+      syncChannel.onmessage = () => {
+        loadData();
+      };
+    }
+
+    // Real-time iframe postMessage sync (when admin is open in iframe)
+    const handleMessage = (e) => {
+      if (e.data && e.data.optom_sync) {
+        loadData();
+      }
+    };
+    window.addEventListener('message', handleMessage);
+
+    // Real-time localStorage change sync
+    const handleStorage = (e) => {
+      if (!e.key || e.key === 'optom_custom_products' || e.key === 'optom_deleted_product_ids') {
+        loadData();
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('optom_sync', () => loadData());
+
+    // Periodic background sync every 5 seconds
     const interval = setInterval(() => {
       if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
         loadData();
       }
-    }, 10000);
+    }, 5000);
 
     // Load cart from localStorage
     try {
@@ -94,6 +156,9 @@ export default function HomePage() {
 
     return () => {
       window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('message', handleMessage);
+      window.removeEventListener('storage', handleStorage);
+      if (syncChannel) syncChannel.close();
       clearInterval(interval);
     };
   }, []);

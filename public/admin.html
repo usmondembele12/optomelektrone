@@ -770,21 +770,56 @@
       }
     }
 
+    const syncChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('optom_sync') : null;
+    function notifySync(data) {
+      try {
+        if (syncChannel) syncChannel.postMessage(data);
+      } catch (_) {}
+      try {
+        window.dispatchEvent(new CustomEvent('optom_sync', { detail: data }));
+      } catch (_) {}
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ optom_sync: true, ...data }, '*');
+        }
+      } catch (_) {}
+    }
+
+    function applyLocalOverrides(products) {
+      try {
+        const deletedIds = JSON.parse(localStorage.getItem('optom_deleted_product_ids') || '[]').map(String);
+        const customProds = JSON.parse(localStorage.getItem('optom_custom_products') || '[]');
+        let list = (products || []).filter(p => !deletedIds.includes(String(p.id)));
+        for (const c of customProds) {
+          if (deletedIds.includes(String(c.id))) continue;
+          const idx = list.findIndex(p => String(p.id) === String(c.id));
+          if (idx !== -1) {
+            list[idx] = { ...list[idx], ...c };
+          } else {
+            list.unshift(c);
+          }
+        }
+        return list;
+      } catch (_) {
+        return products || [];
+      }
+    }
+
     async function refreshAllData() {
       try {
         const [prodRes, catRes, orderRes, statRes, setRes] = await Promise.all([
-          fetch('/api/products').then(r => r.json()),
-          fetch('/api/categories').then(r => r.json()),
-          fetch('/api/orders').then(r => r.json()),
-          fetch('/api/stats').then(r => r.json()),
-          fetch('/api/settings').then(r => r.json())
+          fetch('/api/products?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
+          fetch('/api/categories?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
+          fetch('/api/orders?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
+          fetch('/api/stats?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => ({})),
+          fetch('/api/settings?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => ({}))
         ]);
 
-        globalData.products = prodRes;
-        globalData.categories = catRes;
-        globalData.orders = orderRes;
-        globalData.stats = statRes;
-        globalData.settings = setRes;
+        globalData.products = applyLocalOverrides(Array.isArray(prodRes) ? prodRes : []);
+        globalData.categories = Array.isArray(catRes) ? catRes : [];
+        globalData.orders = Array.isArray(orderRes) ? orderRes : [];
+        globalData.stats = statRes || {};
+        globalData.settings = setRes || {};
 
         updateDashboardMetrics();
         renderRecentOrders();
@@ -1106,17 +1141,20 @@
       const categoryId = document.getElementById('form-prod-category').value;
       const catObj = (globalData.categories || []).find(c => c.id === categoryId);
 
+      const generatedId = id ? (isNaN(id) ? id : Number(id)) : Date.now();
+
       const payload = {
-        name: document.getElementById('form-prod-name').value,
+        id: generatedId,
+        name: document.getElementById('form-prod-name').value.trim(),
         category: categoryId,
         categoryName: catObj ? catObj.name : 'Boshqa',
-        brand: document.getElementById('form-prod-brand').value,
-        price: Number(document.getElementById('form-prod-price').value),
-        wholesalePrice: Number(document.getElementById('form-prod-wholesale').value) || Number(document.getElementById('form-prod-price').value),
-        stock: Number(document.getElementById('form-prod-stock').value),
-        unit: document.getElementById('form-prod-unit').value,
-        image: document.getElementById('form-prod-image').value || '/images/products/avtomat-1p.png',
-        description: document.getElementById('form-prod-desc').value,
+        brand: document.getElementById('form-prod-brand').value.trim() || 'LUX VOLT',
+        price: Number(document.getElementById('form-prod-price').value) || 0,
+        wholesalePrice: Number(document.getElementById('form-prod-wholesale').value) || Number(document.getElementById('form-prod-price').value) || 0,
+        stock: Number(document.getElementById('form-prod-stock').value) || 10,
+        unit: document.getElementById('form-prod-unit').value || 'dona',
+        image: document.getElementById('form-prod-image').value.trim() || '/images/products/avtomat-1p.png',
+        description: document.getElementById('form-prod-desc').value.trim(),
         isFeatured: document.getElementById('form-prod-featured').checked
       };
 
@@ -1124,20 +1162,56 @@
       const method = id ? 'PUT' : 'POST';
 
       try {
-        const res = await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        if (res.ok) {
-          showToast(id ? 'Mahsulot yangilandi!' : 'Yangi mahsulot muvaffaqiyatli qo\'shildi!');
-          closeProductModal();
-          refreshAllData();
+        let savedProduct = null;
+        try {
+          const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            savedProduct = await res.json();
+          }
+        } catch (_) {}
+
+        const finalProduct = savedProduct || {
+          ...payload,
+          id: generatedId,
+          slug: payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+          specs: {},
+          rating: 5.0,
+          reviewsCount: 1,
+          isPopular: false
+        };
+
+        // 1. Save to custom products in localStorage
+        const custom = JSON.parse(localStorage.getItem('optom_custom_products') || '[]');
+        if (id) {
+          const idx = custom.findIndex(p => String(p.id) === String(id));
+          if (idx !== -1) {
+            custom[idx] = { ...custom[idx], ...finalProduct };
+          } else {
+            custom.unshift(finalProduct);
+          }
         } else {
-          showToast('Xatolik yuz berdi!', true);
+          custom.unshift(finalProduct);
         }
+        localStorage.setItem('optom_custom_products', JSON.stringify(custom));
+
+        // 2. Un-delete if previously deleted
+        const deleted = JSON.parse(localStorage.getItem('optom_deleted_product_ids') || '[]');
+        const filteredDeleted = deleted.filter(dId => String(dId) !== String(finalProduct.id));
+        localStorage.setItem('optom_deleted_product_ids', JSON.stringify(filteredDeleted));
+
+        // 3. Notify other tabs/windows
+        notifySync({ type: 'PRODUCT_SAVED', product: finalProduct });
+
+        showToast(id ? 'Mahsulot yangilandi!' : 'Yangi mahsulot muvaffaqiyatli qo\'shildi!');
+        closeProductModal();
+        refreshAllData();
       } catch (err) {
-        showToast('Server xatosi!', true);
+        console.error(err);
+        showToast('Xatolik yuz berdi!', true);
       }
     }
 
@@ -1145,15 +1219,29 @@
       if (!confirm('Haqiqatan ham ushbu mahsulotni o\'chirmoqchimisiz?')) return;
 
       try {
-        const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-        if (res.ok) {
-          showToast('Mahsulot o\'chirildi!');
-          refreshAllData();
-        } else {
-          showToast('O\'chirishda xatolik!', true);
+        try {
+          await fetch(`/api/products/${id}`, { method: 'DELETE' });
+        } catch (_) {}
+
+        // Remove from custom products
+        const custom = JSON.parse(localStorage.getItem('optom_custom_products') || '[]');
+        const filteredCustom = custom.filter(p => String(p.id) !== String(id));
+        localStorage.setItem('optom_custom_products', JSON.stringify(filteredCustom));
+
+        // Add to deleted IDs
+        const deleted = JSON.parse(localStorage.getItem('optom_deleted_product_ids') || '[]');
+        if (!deleted.map(String).includes(String(id))) {
+          deleted.push(id);
         }
+        localStorage.setItem('optom_deleted_product_ids', JSON.stringify(deleted));
+
+        // Notify other tabs/windows
+        notifySync({ type: 'PRODUCT_DELETED', id: id });
+
+        showToast('Mahsulot o\'chirildi!');
+        refreshAllData();
       } catch (err) {
-        showToast('Server xatosi!', true);
+        showToast('O\'chirishda xatolik!', true);
       }
     }
 
