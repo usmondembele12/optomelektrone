@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from 'react';
-import { ShoppingCart, Zap, Check, Heart, Eye } from 'lucide-react';
+import { ShoppingCart, Zap, Check, Heart, Eye, Trash2 } from 'lucide-react';
 
 export default function ProductCard({ 
   product, 
   onAddToCart, 
   onQuickBuy, 
   onOpenDetail,
+  onDeleteProduct,
   isFavorite = false,
   onToggleFavorite,
   cartQuantity = 0
@@ -28,7 +29,7 @@ export default function ProductCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* BADGES & FAVORITE */}
+      {/* BADGES & ACTIONS */}
       <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
         <div className="flex flex-col gap-1 items-start">
           <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-blue-600 text-white shadow-sm pointer-events-auto">
@@ -41,18 +42,35 @@ export default function ProductCard({
           )}
         </div>
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (onToggleFavorite) onToggleFavorite(product.id);
-          }}
-          className={`w-8 h-8 rounded-full bg-white/90 backdrop-blur-md shadow-sm border border-slate-200/60 flex items-center justify-center transition-all pointer-events-auto ${
-            isFavorite ? 'text-rose-500' : 'text-slate-400 hover:text-rose-500'
-          }`}
-          title="Sevimlilarga qo'shish"
-        >
-          <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500' : ''}`} />
-        </button>
+        <div className="flex items-center gap-1.5 pointer-events-auto">
+          {onDeleteProduct && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (confirm(`"${product.name}" mahsulotini o'chirmoqchimisiz?`)) {
+                  onDeleteProduct(product.id, product.name);
+                }
+              }}
+              className="w-8 h-8 rounded-full bg-white/95 hover:bg-rose-50 text-slate-400 hover:text-rose-600 backdrop-blur-md shadow-sm border border-slate-200/60 flex items-center justify-center transition-all opacity-75 hover:opacity-100"
+              title="Mahsulotni o'chirish"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onToggleFavorite) onToggleFavorite(product.id);
+            }}
+            className={`w-8 h-8 rounded-full bg-white/90 backdrop-blur-md shadow-sm border border-slate-200/60 flex items-center justify-center transition-all ${
+              isFavorite ? 'text-rose-500' : 'text-slate-400 hover:text-rose-500'
+            }`}
+            title="Sevimlilarga qo'shish"
+          >
+            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500' : ''}`} />
+          </button>
+        </div>
       </div>
 
       {/* PRODUCT IMAGE */}

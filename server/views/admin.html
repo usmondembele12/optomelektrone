@@ -350,6 +350,10 @@
               <i data-lucide="plus" class="w-4 h-4"></i>
               <span>Qo'shish</span>
             </button>
+            <button onclick="resetAllProductsToDefault()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 text-xs font-bold flex items-center gap-1.5 transition-all whitespace-nowrap" title="Barcha test mahsulotlarini tozalash va standart holatga qaytarish">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              <span>Tozalash (Reset)</span>
+            </button>
           </div>
         </div>
 
@@ -1068,10 +1072,10 @@
             </span>
           </td>
           <td class="px-6 py-4 text-right space-x-2">
-            <button onclick="editProduct(${p.id})" class="p-2 text-slate-400 hover:text-blue-600 transition-all" title="Tahrirlash">
+            <button onclick="editProduct('${p.id}')" class="p-2 text-slate-400 hover:text-blue-600 transition-all" title="Tahrirlash">
               <i data-lucide="edit-3" class="w-4 h-4"></i>
             </button>
-            <button onclick="deleteProduct(${p.id})" class="p-2 text-slate-400 hover:text-rose-600 transition-all" title="O'chirish">
+            <button onclick="deleteProduct('${p.id}', '${(p.name || '').replace(/'/g, "\\'")}')" class="p-2 text-slate-400 hover:text-rose-600 transition-all" title="O'chirish">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </td>
@@ -1215,8 +1219,9 @@
       }
     }
 
-    async function deleteProduct(id) {
-      if (!confirm('Haqiqatan ham ushbu mahsulotni o\'chirmoqchimisiz?')) return;
+    async function deleteProduct(id, name = '') {
+      const prodName = name || 'tanlangan mahsulotni';
+      if (!confirm(`Haqiqatan ham "${prodName}" mahsulotini o'chirmoqchimisiz?`)) return;
 
       try {
         try {
@@ -1225,24 +1230,44 @@
 
         // Remove from custom products
         const custom = JSON.parse(localStorage.getItem('optom_custom_products') || '[]');
-        const filteredCustom = custom.filter(p => String(p.id) !== String(id));
+        const filteredCustom = custom.filter(p => String(p.id) !== String(id) && (!name || p.name.toLowerCase() !== name.toLowerCase()));
         localStorage.setItem('optom_custom_products', JSON.stringify(filteredCustom));
 
         // Add to deleted IDs
-        const deleted = JSON.parse(localStorage.getItem('optom_deleted_product_ids') || '[]');
-        if (!deleted.map(String).includes(String(id))) {
-          deleted.push(id);
+        const deletedIds = JSON.parse(localStorage.getItem('optom_deleted_product_ids') || '[]');
+        if (!deletedIds.map(String).includes(String(id))) {
+          deletedIds.push(String(id));
         }
-        localStorage.setItem('optom_deleted_product_ids', JSON.stringify(deleted));
+        localStorage.setItem('optom_deleted_product_ids', JSON.stringify(deletedIds));
+
+        // Add to deleted names
+        if (name) {
+          const deletedNames = JSON.parse(localStorage.getItem('optom_deleted_product_names') || '[]');
+          const nLower = name.toLowerCase().trim();
+          if (!deletedNames.includes(nLower)) {
+            deletedNames.push(nLower);
+          }
+          localStorage.setItem('optom_deleted_product_names', JSON.stringify(deletedNames));
+        }
 
         // Notify other tabs/windows
-        notifySync({ type: 'PRODUCT_DELETED', id: id });
+        notifySync({ type: 'PRODUCT_DELETED', id: id, name: name });
 
         showToast('Mahsulot o\'chirildi!');
         refreshAllData();
       } catch (err) {
         showToast('O\'chirishda xatolik!', true);
       }
+    }
+
+    function resetAllProductsToDefault() {
+      if (!confirm("Barcha qo'shimcha o'zgartirishlarni tozalab, mahsulotlar ro'yxatini asl standart holatiga qaytarmoqchimisiz?")) return;
+      localStorage.removeItem('optom_custom_products');
+      localStorage.removeItem('optom_deleted_product_ids');
+      localStorage.removeItem('optom_deleted_product_names');
+      notifySync({ type: 'PRODUCTS_RESET' });
+      showToast("Mahsulotlar ro'yxati tozalandi!");
+      refreshAllData();
     }
 
     // Telegram & Store settings

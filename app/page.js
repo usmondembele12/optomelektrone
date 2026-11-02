@@ -60,12 +60,18 @@ export default function HomePage() {
     if (typeof window === 'undefined') return apiProducts || [];
     try {
       const deletedIds = JSON.parse(localStorage.getItem('optom_deleted_product_ids') || '[]').map(String);
+      const deletedNames = JSON.parse(localStorage.getItem('optom_deleted_product_names') || '[]').map(s => String(s).toLowerCase().trim());
       const customProds = JSON.parse(localStorage.getItem('optom_custom_products') || '[]');
 
-      let list = (apiProducts || []).filter(p => !deletedIds.includes(String(p.id)));
+      let list = (apiProducts || []).filter(p => {
+        if (deletedIds.includes(String(p.id))) return false;
+        if (p.name && deletedNames.includes(String(p.name).toLowerCase().trim())) return false;
+        return true;
+      });
 
       for (const c of customProds) {
         if (deletedIds.includes(String(c.id))) continue;
+        if (c.name && deletedNames.includes(String(c.name).toLowerCase().trim())) continue;
         const idx = list.findIndex(p => String(p.id) === String(c.id));
         if (idx !== -1) {
           list[idx] = { ...list[idx], ...c };
@@ -76,6 +82,49 @@ export default function HomePage() {
       return list;
     } catch (_) {
       return apiProducts || [];
+    }
+  };
+
+  const handleDeleteProduct = async (id, name) => {
+    try {
+      // 1. Remove from custom products
+      const custom = JSON.parse(localStorage.getItem('optom_custom_products') || '[]');
+      const filteredCustom = custom.filter(p => String(p.id) !== String(id) && (!name || p.name.toLowerCase() !== name.toLowerCase()));
+      localStorage.setItem('optom_custom_products', JSON.stringify(filteredCustom));
+
+      // 2. Add to deleted IDs and names
+      const deletedIds = JSON.parse(localStorage.getItem('optom_deleted_product_ids') || '[]');
+      if (!deletedIds.map(String).includes(String(id))) {
+        deletedIds.push(String(id));
+      }
+      localStorage.setItem('optom_deleted_product_ids', JSON.stringify(deletedIds));
+
+      if (name) {
+        const deletedNames = JSON.parse(localStorage.getItem('optom_deleted_product_names') || '[]');
+        const nLower = name.toLowerCase().trim();
+        if (!deletedNames.includes(nLower)) {
+          deletedNames.push(nLower);
+        }
+        localStorage.setItem('optom_deleted_product_names', JSON.stringify(deletedNames));
+      }
+
+      // 3. Call server DELETE API
+      try {
+        await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      } catch (_) {}
+
+      // 4. Update UI immediately
+      setProducts(prev => prev.filter(p => String(p.id) !== String(id) && (!name || p.name.toLowerCase() !== name.toLowerCase())));
+      showToast(`"${name || 'Mahsulot'}" muvaffaqiyatli o'chirildi!`);
+
+      // 5. Broadcast to other tabs
+      const syncChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('optom_sync') : null;
+      if (syncChannel) {
+        syncChannel.postMessage({ type: 'PRODUCT_DELETED', id, name });
+        syncChannel.close();
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
     }
   };
 
@@ -471,6 +520,7 @@ export default function HomePage() {
                     onAddToCart={(p) => handleAddToCart(p, 1)}
                     onQuickBuy={(p) => setQuickBuyProduct(p)}
                     onOpenDetail={(p) => setDetailProduct(p)}
+                    onDeleteProduct={handleDeleteProduct}
                     isFavorite={favorites.includes(product.id)}
                     onToggleFavorite={handleToggleFavorite}
                     cartQuantity={inCart ? inCart.quantity : 0}
