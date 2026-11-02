@@ -27,6 +27,7 @@ export default function Header({
   onOpenCart, 
   onOpenCatalog, 
   favoritesCount = 0,
+  onOpenFavorites,
   searchQuery = '',
   onSearchChange,
   products = [],
@@ -222,20 +223,21 @@ export default function Header({
               <LayoutGrid className="w-5 h-5" />
             </button>
 
-            {/* Favorites Icon */}
+            {/* Favorites Icon (Desktop & Mobile) */}
             <button 
-              className="hidden md:flex flex-col items-center justify-center p-2 rounded-xl text-slate-600 hover:text-blue-600 hover:bg-slate-50 transition-colors relative"
-              title="Sevimlilar"
+              onClick={onOpenFavorites}
+              className="flex flex-col items-center justify-center p-2 rounded-xl text-slate-600 hover:text-rose-600 hover:bg-rose-50/50 transition-colors relative"
+              title="Sevimlilar ro'yxati"
             >
               <div className="relative">
-                <Heart className="w-5 h-5" />
+                <Heart className={`w-5 h-5 ${favoritesCount > 0 ? 'text-rose-500 fill-rose-500' : ''}`} />
                 {favoritesCount > 0 && (
                   <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[10px] font-black rounded-full w-4 h-4 flex items-center justify-center">
                     {favoritesCount}
                   </span>
                 )}
               </div>
-              <span className="text-[10px] font-semibold mt-1">Sevimlilar</span>
+              <span className="hidden md:inline text-[10px] font-semibold mt-1">Sevimlilar</span>
             </button>
 
             {/* CART BUTTON */}

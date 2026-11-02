@@ -10,6 +10,7 @@ import CheckoutModal from '../components/CheckoutModal';
 import QuickBuyModal from '../components/QuickBuyModal';
 import ProductDetailModal from '../components/ProductDetailModal';
 import CategoryDrawer from '../components/CategoryDrawer';
+import FavoritesDrawer from '../components/FavoritesDrawer';
 import Footer from '../components/Footer';
 import { 
   SlidersHorizontal, 
@@ -20,7 +21,8 @@ import {
   Send, 
   Sparkles,
   Search,
-  FilterX
+  FilterX,
+  Heart
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -38,10 +40,12 @@ export default function HomePage() {
   const [cart, setCart] = useState([]);
   const [favorites, setFavorites] = useState([]);
 
-  // Modals
+  // Modals & Drawers
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
   
   const [quickBuyProduct, setQuickBuyProduct] = useState(null);
   const [detailProduct, setDetailProduct] = useState(null);
@@ -70,9 +74,14 @@ export default function HomePage() {
   useEffect(() => {
     loadData();
 
-    // Auto-refresh when tab is focused
+    // Auto-refresh when tab is focused or periodically
     const handleFocus = () => loadData();
     window.addEventListener('focus', handleFocus);
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        loadData();
+      }
+    }, 10000);
 
     // Load cart from localStorage
     try {
@@ -83,7 +92,10 @@ export default function HomePage() {
       if (savedFavs) setFavorites(JSON.parse(savedFavs));
     } catch (_) {}
 
-    return () => window.removeEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
   }, []);
 
   // Save Cart & Favs to localStorage
@@ -209,6 +221,11 @@ export default function HomePage() {
       result = result.filter((p) => p.brand.toLowerCase() === selectedBrand.toLowerCase());
     }
 
+    // Only Favorites
+    if (onlyFavorites) {
+      result = result.filter((p) => favorites.includes(p.id));
+    }
+
     // Sort
     if (sortBy === 'price_asc') {
       result.sort((a, b) => a.price - b.price);
@@ -237,6 +254,7 @@ export default function HomePage() {
         onOpenCart={() => setIsCartOpen(true)}
         onOpenCatalog={() => setIsCatalogOpen(true)}
         favoritesCount={favorites.length}
+        onOpenFavorites={() => setIsFavoritesOpen(true)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         products={products}
@@ -283,7 +301,24 @@ export default function HomePage() {
             </div>
 
             {/* Sort & Quick Filter Bar */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Quick Favorites Toggle */}
+              <button
+                onClick={() => {
+                  setOnlyFavorites(!onlyFavorites);
+                  scrollToProducts();
+                }}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                  onlyFavorites
+                    ? 'bg-rose-500 text-white shadow-rose-500/25 ring-2 ring-rose-300'
+                    : 'bg-white text-slate-700 border border-slate-200 hover:border-rose-300 hover:text-rose-600'
+                }`}
+                title="Faqat sevimli mahsulotlarni ko'rsatish"
+              >
+                <Heart className={`w-3.5 h-3.5 ${onlyFavorites ? 'fill-white text-white' : favorites.length > 0 ? 'text-rose-500 fill-rose-500' : 'text-slate-400'}`} />
+                <span>Sevimlilar ({favorites.length})</span>
+              </button>
+
               <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 shadow-sm">
                 <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                 <span>Saralash:</span>
@@ -298,12 +333,13 @@ export default function HomePage() {
                 </select>
               </div>
 
-              {(selectedCategory || selectedBrand !== 'Barchasi' || searchQuery) && (
+              {(selectedCategory || selectedBrand !== 'Barchasi' || searchQuery || onlyFavorites) && (
                 <button
                   onClick={() => {
                     setSelectedCategory(null);
                     setSelectedBrand('Barchasi');
                     setSearchQuery('');
+                    setOnlyFavorites(false);
                   }}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold transition-colors"
                 >
@@ -352,6 +388,7 @@ export default function HomePage() {
                   setSelectedCategory(null);
                   setSelectedBrand('Barchasi');
                   setSearchQuery('');
+                  setOnlyFavorites(false);
                 }}
                 className="px-5 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-md shadow-blue-600/20"
               >
@@ -432,6 +469,18 @@ export default function HomePage() {
         onUpdateQuantity={handleUpdateCartQuantity}
         onRemoveItem={handleRemoveCartItem}
         onOpenCheckout={() => setIsCheckoutOpen(true)}
+      />
+
+      {/* Favorites Drawer */}
+      <FavoritesDrawer
+        isOpen={isFavoritesOpen}
+        onClose={() => setIsFavoritesOpen(false)}
+        favorites={favorites}
+        products={products}
+        cart={cart}
+        onAddToCart={(p, qty) => handleAddToCart(p, qty || 1)}
+        onRemoveFavorite={handleToggleFavorite}
+        onOpenDetail={(p) => setDetailProduct(p)}
       />
 
       {/* Checkout Modal with Telegram Bot integration */}
