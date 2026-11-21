@@ -11,6 +11,8 @@ import QuickBuyModal from '../components/QuickBuyModal';
 import ProductDetailModal from '../components/ProductDetailModal';
 import CategoryDrawer from '../components/CategoryDrawer';
 import FavoritesDrawer from '../components/FavoritesDrawer';
+import TrackOrderModal from '../components/TrackOrderModal';
+import FloatingContactBar from '../components/FloatingContactBar';
 import Footer from '../components/Footer';
 import { 
   SlidersHorizontal, 
@@ -43,6 +45,7 @@ export default function HomePage() {
   // Modals & Drawers
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
+  const [isTrackOrderOpen, setIsTrackOrderOpen] = useState(false);
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [onlyFavorites, setOnlyFavorites] = useState(false);
@@ -369,6 +372,7 @@ export default function HomePage() {
         onOpenCatalog={() => setIsCatalogOpen(true)}
         favoritesCount={favorites.length}
         onOpenFavorites={() => setIsFavoritesOpen(true)}
+        onOpenTrackOrder={() => setIsTrackOrderOpen(true)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         products={products}
@@ -644,6 +648,15 @@ export default function HomePage() {
           scrollToProducts();
         }}
       />
+
+      {/* Customer Order Status Tracking Modal */}
+      <TrackOrderModal
+        isOpen={isTrackOrderOpen}
+        onClose={() => setIsTrackOrderOpen(false)}
+      />
+
+      {/* Floating Call & Telegram Contact Buttons */}
+      <FloatingContactBar />
 
       {/* Floating Toast Notification */}
       {toast && (

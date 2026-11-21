@@ -290,9 +290,15 @@
             <button onclick="filterOrders('bekor_qilindi')" class="order-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200" data-filter="bekor_qilindi">Bekor qilindi</button>
           </div>
 
-          <div class="relative w-full md:w-72">
-            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
-            <input type="text" id="order-search" oninput="searchOrders(this.value)" placeholder="Mijoz yoki ID bo'yicha qidirish..." class="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <div class="flex items-center gap-3 w-full md:w-auto">
+            <div class="relative w-full md:w-72">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
+              <input type="text" id="order-search" oninput="searchOrders(this.value)" placeholder="Mijoz yoki ID bo'yicha qidirish..." class="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button onclick="exportOrdersToCSV()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shadow-sm shadow-emerald-600/20" title="Buyurtmalarni Excel (CSV) formatida yuklab olish">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+              <span>Excel (CSV)</span>
+            </button>
           </div>
         </div>
 
@@ -559,6 +565,10 @@
         </div>
 
         <div class="flex items-center gap-3 w-full md:w-auto">
+          <button onclick="printOrderInvoice()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-sm font-bold flex items-center gap-1.5 transition-all">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Chop etish (Chek)</span>
+          </button>
           <select id="modal-status-select" class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold bg-slate-50 focus:outline-none">
             <option value="yangi">Yangi</option>
             <option value="qabul_qilindi">Qabul qilindi</option>
@@ -1034,6 +1044,176 @@
       } catch (err) {
         showToast('Server bilan aloqa xatosi!', true);
       }
+    }
+
+    // Export orders to Excel/CSV
+    function exportOrdersToCSV() {
+      const orders = globalData.orders || [];
+      if (orders.length === 0) {
+        showToast('Eksport qilish uchun buyurtmalar yo\'q', true);
+        return;
+      }
+      const headers = ['Buyurtma ID', 'Mijoz Ismi', 'Telefon', 'Shahar/Viloyat', 'Manzil', 'Yetkazish', 'To\'lov', 'Jami Summa (so\'m)', 'Holat', 'Sana', 'Mahsulotlar'];
+      const rows = orders.map(o => {
+        const itemsStr = (o.items || []).map(i => `${i.name} (${i.quantity} ${i.unit || 'dona'})`).join('; ');
+        return [
+          `"${o.id}"`,
+          `"${(o.customerName || '').replace(/"/g, '""')}"`,
+          `"${(o.phone || '').replace(/"/g, '""')}"`,
+          `"${(o.city || '').replace(/"/g, '""')}"`,
+          `"${(o.address || '').replace(/"/g, '""')}"`,
+          `"${o.deliveryMethod || ''}"`,
+          `"${o.paymentMethod || ''}"`,
+          o.totalAmount || 0,
+          `"${o.status || ''}"`,
+          `"${new Date(o.createdAt).toLocaleString('uz-UZ')}"`,
+          `"${itemsStr.replace(/"/g, '""')}"`
+        ].join(',');
+      });
+
+      const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `buyurtmalar_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Excel (CSV) fayl yuklab olindi!');
+    }
+
+    // Print order invoice (Chek)
+    function printOrderInvoice() {
+      if (!activeModalOrderId) return;
+      const order = (globalData.orders || []).find(o => String(o.id) === String(activeModalOrderId));
+      if (!order) return;
+
+      const printWindow = window.open('', '_blank', 'width=800,height=900');
+      if (!printWindow) {
+        alert('Iltimos, qalqib chiquvchi oynalarga (pop-up) ruxsat bering!');
+        return;
+      }
+
+      const itemsRows = (order.items || []).map((it, idx) => `
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: center;">${idx + 1}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;"><b>${it.name}</b></td>
+          <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: center;">${it.quantity} ${it.unit || 'dona'}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;">${Number(it.price).toLocaleString('uz-UZ')} so'm</td>
+          <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: bold;">${Number(it.total || (it.price * it.quantity)).toLocaleString('uz-UZ')} so'm</td>
+        </tr>
+      `).join('');
+
+      const statusLabels = {
+        yangi: 'Yangi',
+        qabul_qilindi: 'Qabul qilindi',
+        yetkazilmoqda: 'Yetkazilmoqda',
+        yakunlandi: 'Yakunlandi',
+        bekor_qilindi: 'Bekor qilindi'
+      };
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="uz">
+        <head>
+          <meta charset="UTF-8">
+          <title>Chek #${order.id} - OptomElektro</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; padding: 30px; margin: 0; }
+            .invoice-card { max-width: 720px; margin: 0 auto; border: 1px solid #cbd5e1; padding: 32px; border-radius: 12px; }
+            .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0284c7; padding-bottom: 16px; margin-bottom: 24px; }
+            .brand { font-size: 24px; font-weight: 900; color: #0369a1; }
+            .brand span { color: #f97316; }
+            .meta-table { width: 100%; margin-bottom: 24px; font-size: 14px; }
+            .meta-table td { padding: 4px 0; vertical-align: top; }
+            .items-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 14px; }
+            .items-table th { background: #f8fafc; padding: 10px 8px; border-bottom: 2px solid #cbd5e1; text-align: left; }
+            .total-box { text-align: right; font-size: 18px; font-weight: bold; margin-top: 16px; padding-top: 16px; border-top: 2px dashed #cbd5e1; }
+            .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 16px; }
+            @media print {
+              body { padding: 0; }
+              .invoice-card { border: none; padding: 16px; }
+              .no-print { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-card">
+            <div class="header">
+              <div>
+                <div class="brand">OPTOM<span>ELEKTRO</span>.UZ</div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Ulgurji va chakana elektrotexnika mahsulotlari</div>
+              </div>
+              <div style="text-align: right;">
+                <h2 style="margin: 0; font-size: 18px; color: #0284c7;">BUYURTMA CHEKI</h2>
+                <div style="font-size: 13px; font-weight: bold; margin-top: 4px;">#${order.id}</div>
+                <div style="font-size: 12px; color: #64748b;">${new Date(order.createdAt).toLocaleString('uz-UZ')}</div>
+              </div>
+            </div>
+
+            <table class="meta-table">
+              <tr>
+                <td style="width: 50%;">
+                  <div style="color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: bold;">Mijoz Ma'lumotlari:</div>
+                  <div style="font-size: 15px; font-weight: bold; margin-top: 2px;">${order.customerName}</div>
+                  <div style="color: #0284c7; font-weight: 600;">Tel: ${order.phone}</div>
+                  ${order.city ? `<div>Shahar/Viloyat: ${order.city}</div>` : ''}
+                  ${order.address ? `<div>Manzil: ${order.address}</div>` : ''}
+                </td>
+                <td style="width: 50%; text-align: right;">
+                  <div style="color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: bold;">Yetkazish & To'lov:</div>
+                  <div style="margin-top: 2px;">Yetkazish turi: <b>${order.deliveryMethod === 'olib_ketish' ? 'Olib ketish' : 'Yetkazib berish'}</b></div>
+                  <div>To'lov turi: <b>${order.paymentMethod === 'naqd' ? 'Naqd pul' : (order.paymentMethod === 'karta' ? 'Plastik karta' : 'Bank o\'tkazmasi')}</b></div>
+                  <div>Holati: <b>${statusLabels[order.status] || order.status}</b></div>
+                </td>
+              </tr>
+            </table>
+
+            ${order.notes ? `
+              <div style="background: #f8fafc; border-left: 3px solid #0284c7; padding: 8px 12px; margin-bottom: 20px; font-size: 13px; color: #475569;">
+                <b>Mijoz izohi:</b> ${order.notes}
+              </div>
+            ` : ''}
+
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th style="width: 35px; text-align: center;">#</th>
+                  <th>Mahsulot nomi</th>
+                  <th style="text-align: center;">Miqdor</th>
+                  <th style="text-align: right;">Narxi</th>
+                  <th style="text-align: right;">Jami</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsRows}
+              </tbody>
+            </table>
+
+            <div class="total-box">
+              Jami to'lov summasi: <span style="color: #0284c7; font-size: 22px;">${Number(order.totalAmount).toLocaleString('uz-UZ')} so'm</span>
+            </div>
+
+            <div class="footer">
+              Xaridingiz uchun tashakkur! Savollar bo'lsa biz bilan bog'laning: +998 (90) 123-45-67<br>
+              Hujjat OptomElektro.uz tizimi orqali shakllantirildi.
+            </div>
+          </div>
+          <div style="text-align: center; margin-top: 20px;" class="no-print">
+            <button onclick="window.print()" style="padding: 10px 24px; background: #0284c7; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;">
+              Chop etish / PDF saqlash
+            </button>
+          </div>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+      }, 350);
     }
 
     // Products table

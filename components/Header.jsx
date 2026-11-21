@@ -18,7 +18,8 @@ import {
   LayoutGrid,
   Zap,
   SlidersHorizontal,
-  ExternalLink
+  ExternalLink,
+  Package
 } from 'lucide-react';
 
 export default function Header({ 
@@ -28,6 +29,7 @@ export default function Header({
   onOpenCatalog, 
   favoritesCount = 0,
   onOpenFavorites,
+  onOpenTrackOrder,
   searchQuery = '',
   onSearchChange,
   products = [],
@@ -105,17 +107,25 @@ export default function Header({
               <span>Telegram Kanal</span>
             </a>
 
+            {/* Order Tracking */}
+            <button
+              onClick={onOpenTrackOrder}
+              className="hidden sm:flex items-center gap-1.5 text-slate-300 hover:text-white font-semibold text-[11px] transition-colors"
+              title="Buyurtma holatini bilish"
+            >
+              <Package className="w-3.5 h-3.5 text-blue-400" />
+              <span>Buyurtmani tekshirish</span>
+            </button>
+
             {/* Admin Dashboard shortcut */}
-            <a
-              href="http://localhost:5000/admin"
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              href="/admin"
               className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-600/30 text-blue-300 hover:bg-blue-600 hover:text-white transition-all font-semibold text-[11px] border border-blue-500/30"
-              title="Backend Admin Dashboard"
+              title="Boshqaruv paneli"
             >
               <ShieldCheck className="w-3 h-3 text-blue-400" />
               <span>Admin Panel</span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>

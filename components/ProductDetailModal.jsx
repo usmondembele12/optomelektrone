@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { X, ShoppingCart, Zap, ShieldCheck, Check, Heart, Phone } from 'lucide-react';
+import { X, ShoppingCart, Zap, ShieldCheck, Check, Heart, Phone, Share2, Sparkles, Send } from 'lucide-react';
 
 export default function ProductDetailModal({
   product,
@@ -18,10 +18,21 @@ export default function ProductDetailModal({
   const isWholesale = product.minWholesaleQty && quantity >= product.minWholesaleQty && product.wholesalePrice;
   const currentPrice = isWholesale ? product.wholesalePrice : product.price;
   const totalPrice = currentPrice * quantity;
+  const normalTotal = (product.price || currentPrice) * quantity;
+  const wholesaleSavings = normalTotal - totalPrice;
+  const neededForWholesale = (product.minWholesaleQty && product.wholesalePrice && quantity < product.minWholesaleQty)
+    ? (product.minWholesaleQty - quantity)
+    : 0;
 
   const validImage = (product.image && (product.image.startsWith('/') || product.image.startsWith('http')))
     ? product.image
     : '/images/products/avtomat-1p.png';
+
+  const handleShareTelegram = () => {
+    const text = encodeURIComponent(`⚡ ${product.name}\n💰 Narxi: ${Number(currentPrice).toLocaleString('uz-UZ')} so'm\n🏬 OPTOM elektro - Elektr jihozlari ulgurji markazi`);
+    const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : 'https://optomelektro.uz');
+    window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
@@ -82,9 +93,30 @@ export default function ProductDetailModal({
                 </div>
 
                 {product.wholesalePrice && (
-                  <div className="flex items-center gap-2 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200/80 px-3 py-1.5 rounded-xl">
-                    <Zap className="w-4 h-4 text-blue-600" />
-                    <span>Optom narxi: <strong>{Number(product.wholesalePrice).toLocaleString('uz-UZ')} so'm</strong> ({product.minWholesaleQty || 10}+ {product.unit || 'dona'} olinganda)</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200/80 p-2.5 rounded-xl">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                        <span>Optom narxi: <strong>{Number(product.wholesalePrice).toLocaleString('uz-UZ')} so'm</strong> ({product.minWholesaleQty || 10}+ {product.unit || 'dona'})</span>
+                      </div>
+                      {neededForWholesale > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setQuantity(product.minWholesaleQty || 10)}
+                          className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-black transition-colors"
+                        >
+                          Optomga o'tish
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Wholesale Savings Banner */}
+                    {isWholesale && wholesaleSavings > 0 && (
+                      <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800 flex items-center gap-2 animate-pulse">
+                        <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                        <span>🎉 Siz ulgurji chegirmaga ega bo'ldingiz! Tejalgan summa: <strong>{Number(wholesaleSavings).toLocaleString('uz-UZ')} so'm</strong></span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -156,6 +188,16 @@ export default function ProductDetailModal({
                   <span>Savatga Qo'shish</span>
                 </button>
               </div>
+
+              {/* Share to Telegram button */}
+              <button
+                type="button"
+                onClick={handleShareTelegram}
+                className="w-full py-2 bg-slate-50 hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-slate-600 hover:text-sky-700 font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-2"
+              >
+                <Send className="w-3.5 h-3.5 text-sky-500" />
+                <span>Telegram orqali do'stlarga yuborish</span>
+              </button>
             </div>
           </div>
         </div>

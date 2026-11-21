@@ -4,7 +4,7 @@
  * so that messages NEVER fail to deliver.
  */
 
-const FALLBACK_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8954426665:AAHJc94iLVpctZ0mPJfcSWqkCg4ejMSidl8';
+const FALLBACK_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '9284355717:AAF8eLuWBibzGe6Oq4en1PbgiZ5ogHguYao';
 const FALLBACK_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '8038275900';
 
 function escapeHtml(str) {
@@ -55,11 +55,15 @@ function buildHtmlMessage(order) {
 
   const notesBlock = order.notes ? `📝 <b>Izoh:</b> <i>${escapeHtml(order.notes)}</i>\n` : '';
 
+  const cleanPhone = String(order.phone || '').replace(/[^0-9]/g, '');
+  const tgLink = cleanPhone ? `https://t.me/+${cleanPhone}` : '';
+  const isWholesaleOrder = (order.items || []).some(item => item.price && item.wholesalePrice && item.price === item.wholesalePrice);
+
   const rawMessage = `
-⚡ <b>YANGI BUYURTMA #${escapeHtml(order.id)}</b>
+⚡ <b>YANGI BUYURTMA #${escapeHtml(order.id)}</b>${isWholesaleOrder ? ' 🏷️ <i>[ULGURJI BUYURTMA]</i>' : ''}
 ━━━━━━━━━━━━━━━━━━━━━━
 👤 <b>Mijoz:</b> ${escapeHtml(order.customerName || 'Mijoz')}
-📞 <b>Telefon:</b> <code>${escapeHtml(order.phone || 'Kiritilmagan')}</code>
+📞 <b>Telefon:</b> <code>${escapeHtml(order.phone || 'Kiritilmagan')}</code>${cleanPhone ? ` (<a href="tel:+${cleanPhone}">Qo'ng'iroq</a> | <a href="${tgLink}">Telegram</a>)` : ''}
 📍 <b>Manzil:</b> ${escapeHtml(order.city || 'Toshkent')}, ${escapeHtml(order.address || "Ko'rsatilmagan")}
 🚚 <b>Yetkazish:</b> ${deliveryText}
 💳 <b>To'lov:</b> ${paymentText}
@@ -70,7 +74,7 @@ ${itemsList || "Mahsulotlar mavjud emas"}
 💰 <b>JAMI SUMMA:</b> <b>${Number(order.totalAmount || 0).toLocaleString('uz-UZ')} so'm</b>
 🕒 <b>Vaqt:</b> ${dateFormatted}
 ━━━━━━━━━━━━━━━━━━━━━━
-<i>🤖 OPTOM elektro tizimidan avtomatik xabar</i>
+<i>🤖 OPTOM elektro savdo tizimi</i>
   `.trim();
 
   return truncateString(rawMessage);

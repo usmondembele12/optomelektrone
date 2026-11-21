@@ -346,7 +346,7 @@ const INITIAL_SETTINGS = {
   storePhone: '+998 71 200-00-00',
   storeAddress: "Toshkent sh., Chilonzor tumani, O'rikzor ulgurji bozori, 4-blok 18-do'kon",
   storeTelegram: 'https://t.me/optomelektro',
-  telegramBotToken: '8954426665:AAHJc94iLVpctZ0mPJfcSWqkCg4ejMSidl8',
+  telegramBotToken: '9284355717:AAF8eLuWBibzGe6Oq4en1PbgiZ5ogHguYao',
   telegramChatId: '8038275900',
   freeDeliveryThreshold: 5000000,
   deliveryFee: 40000,
