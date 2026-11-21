@@ -1,4 +1,5 @@
 import "./globals.css";
+import { LanguageProvider } from "../context/LanguageContext";
 
 export const metadata = {
   title: "OPTOM ELEKTRO — Elektr jihozlari va kabellarning ulgurji savdo markazi",
@@ -17,7 +18,9 @@ export default function RootLayout({ children }) {
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body className="min-h-full flex flex-col font-sans bg-slate-50 text-slate-800">
-        {children}
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

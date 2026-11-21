@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import { X, ShoppingCart, Zap, ShieldCheck, Check, Heart, Phone, Share2, Sparkles, Send } from 'lucide-react';
+import { X, ShoppingCart, Zap, Sparkles, Send } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ProductDetailModal({
   product,
@@ -11,6 +12,7 @@ export default function ProductDetailModal({
   onQuickBuy,
   cartQuantity = 0
 }) {
+  const { t, getLocalized } = useLanguage();
   const [quantity, setQuantity] = useState(1);
 
   if (!isOpen || !product) return null;
@@ -28,8 +30,14 @@ export default function ProductDetailModal({
     ? product.image
     : '/images/products/avtomat-1p.png';
 
+  const localizedName = getLocalized(product, 'name');
+  const localizedCategory = getLocalized(product, 'categoryName');
+  const localizedUnit = getLocalized(product, 'unit');
+  const localizedDescription = getLocalized(product, 'description');
+  const localizedSpecs = getLocalized(product, 'specs');
+
   const handleShareTelegram = () => {
-    const text = encodeURIComponent(`⚡ ${product.name}\n💰 Narxi: ${Number(currentPrice).toLocaleString('uz-UZ')} so'm\n🏬 OPTOM elektro - Elektr jihozlari ulgurji markazi`);
+    const text = encodeURIComponent(`⚡ ${localizedName}\n💰 ${Number(currentPrice).toLocaleString('uz-UZ')} ${t('som')}\n🏬 OPTOM elektro`);
     const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : 'https://optomelektro.uz');
     window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
   };
@@ -51,7 +59,7 @@ export default function ProductDetailModal({
           <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 flex items-center justify-center relative min-h-[300px]">
             <img
               src={validImage}
-              alt={product.name}
+              alt={localizedName}
               onError={(e) => { e.currentTarget.src = '/images/products/avtomat-1p.png'; }}
               className="max-h-72 max-w-full object-contain"
             />
@@ -66,30 +74,30 @@ export default function ProductDetailModal({
           <div className="space-y-5 flex flex-col justify-between">
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-xs">
-                <span className="text-slate-400 font-semibold">{product.categoryName}</span>
+                <span className="text-slate-400 font-semibold">{localizedCategory}</span>
                 <span className="text-slate-300">•</span>
                 <span className="text-emerald-600 font-bold flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  Omborda {product.stock} {product.unit || 'dona'} mavjud
+                  {t('inStock')} ({product.stock} {localizedUnit})
                 </span>
               </div>
 
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
-                {product.name}
+                {localizedName}
               </h2>
 
               {/* Pricing Box */}
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2">
                 <div className="flex items-baseline gap-3">
                   <span className="text-2xl sm:text-3xl font-black text-slate-900">
-                    {Number(currentPrice).toLocaleString('uz-UZ')} <span className="text-sm font-bold text-slate-500">so'm</span>
+                    {Number(currentPrice).toLocaleString('uz-UZ')} <span className="text-sm font-bold text-slate-500">{t('som')}</span>
                   </span>
                   {product.oldPrice && (
                     <span className="text-sm text-slate-400 line-through font-semibold">
-                      {Number(product.oldPrice).toLocaleString('uz-UZ')} so'm
+                      {Number(product.oldPrice).toLocaleString('uz-UZ')} {t('som')}
                     </span>
                   )}
-                  <span className="text-xs text-slate-400">/{product.unit || 'dona'}</span>
+                  <span className="text-xs text-slate-400">/{localizedUnit}</span>
                 </div>
 
                 {product.wholesalePrice && (
@@ -97,7 +105,7 @@ export default function ProductDetailModal({
                     <div className="flex items-center justify-between text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200/80 p-2.5 rounded-xl">
                       <div className="flex items-center gap-2">
                         <Zap className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                        <span>Optom narxi: <strong>{Number(product.wholesalePrice).toLocaleString('uz-UZ')} so'm</strong> ({product.minWholesaleQty || 10}+ {product.unit || 'dona'})</span>
+                        <span>{t('wholesalePriceLabel')} <strong>{Number(product.wholesalePrice).toLocaleString('uz-UZ')} {t('som')}</strong> ({product.minWholesaleQty || 10}+ {localizedUnit})</span>
                       </div>
                       {neededForWholesale > 0 && (
                         <button
@@ -105,7 +113,7 @@ export default function ProductDetailModal({
                           onClick={() => setQuantity(product.minWholesaleQty || 10)}
                           className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-black transition-colors"
                         >
-                          Optomga o'tish
+                          {t('switchToWholesaleBtn')}
                         </button>
                       )}
                     </div>
@@ -114,7 +122,7 @@ export default function ProductDetailModal({
                     {isWholesale && wholesaleSavings > 0 && (
                       <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800 flex items-center gap-2 animate-pulse">
                         <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                        <span>🎉 Siz ulgurji chegirmaga ega bo'ldingiz! Tejalgan summa: <strong>{Number(wholesaleSavings).toLocaleString('uz-UZ')} so'm</strong></span>
+                        <span>{t('wholesaleDiscountSuccess')} {t('savedAmountNotice')} <strong>{Number(wholesaleSavings).toLocaleString('uz-UZ')} {t('som')}</strong></span>
                       </div>
                     )}
                   </div>
@@ -123,15 +131,15 @@ export default function ProductDetailModal({
 
               {/* Description */}
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                {product.description}
+                {localizedDescription}
               </p>
 
               {/* Specs Table */}
-              {product.specs && Object.keys(product.specs).length > 0 && (
+              {localizedSpecs && Object.keys(localizedSpecs).length > 0 && (
                 <div className="space-y-1.5 pt-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Texnik parametrlar:</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">{t('specsTitle')}:</h4>
                   <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 text-xs space-y-1.5">
-                    {Object.entries(product.specs).map(([key, val]) => (
+                    {Object.entries(localizedSpecs).map(([key, val]) => (
                       <div key={key} className="flex justify-between py-0.5 border-b border-slate-100 last:border-0">
                         <span className="text-slate-500">{key}:</span>
                         <span className="font-bold text-slate-800">{val}</span>
@@ -159,9 +167,9 @@ export default function ProductDetailModal({
                 </div>
 
                 <div className="flex-1 text-right">
-                  <span className="text-xs text-slate-400">Jami summa:</span>
+                  <span className="text-xs text-slate-400">{t('totalLabel')}</span>
                   <p className="text-lg font-black text-blue-600 leading-none">
-                    {Number(totalPrice).toLocaleString('uz-UZ')} so'm
+                    {Number(totalPrice).toLocaleString('uz-UZ')} {t('som')}
                   </p>
                 </div>
               </div>
@@ -174,7 +182,7 @@ export default function ProductDetailModal({
                   }}
                   className="w-full py-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold text-xs rounded-xl transition-all"
                 >
-                  1 Bosishda Buyurtma
+                  {t('quickBuyBtn')}
                 </button>
 
                 <button
@@ -185,7 +193,7 @@ export default function ProductDetailModal({
                   className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-600/25 transition-all flex items-center justify-center gap-2"
                 >
                   <ShoppingCart className="w-4 h-4" />
-                  <span>Savatga Qo'shish</span>
+                  <span>{t('addToCartModalBtn')}</span>
                 </button>
               </div>
 
@@ -196,7 +204,7 @@ export default function ProductDetailModal({
                 className="w-full py-2 bg-slate-50 hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-slate-600 hover:text-sky-700 font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-2"
               >
                 <Send className="w-3.5 h-3.5 text-sky-500" />
-                <span>Telegram orqali do'stlarga yuborish</span>
+                <span>{t('shareTelegramBtn')}</span>
               </button>
             </div>
           </div>
@@ -206,4 +214,3 @@ export default function ProductDetailModal({
     </div>
   );
 }
-

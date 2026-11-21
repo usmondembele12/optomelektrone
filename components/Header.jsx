@@ -2,13 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { 
   Search, 
   ShoppingCart, 
   Heart, 
-  Menu, 
-  X, 
   MapPin, 
   Phone, 
   Clock, 
@@ -17,10 +14,11 @@ import {
   ChevronDown,
   LayoutGrid,
   Zap,
-  SlidersHorizontal,
-  ExternalLink,
-  Package
+  Package,
+  X,
+  Globe
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Header({ 
   cartCount = 0, 
@@ -35,30 +33,37 @@ export default function Header({
   products = [],
   onSelectProduct
 }) {
+  const { lang, setLang, t, getLocalized, languages, currentLangObj } = useLanguage();
   const [selectedCity, setSelectedCity] = useState("Toshkent");
   const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
 
   const cities = ["Toshkent", "Samarqand", "Buxoro", "Andijon", "Farg'ona", "Namangan", "Qarshi", "Navoiy"];
 
   const filteredSuggestions = searchQuery.trim().length > 1 
-    ? products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
+    ? products.filter(p => {
+        const name = getLocalized(p, 'name').toLowerCase();
+        const rawName = (p.name || '').toLowerCase();
+        const q = searchQuery.toLowerCase();
+        return name.includes(q) || rawName.includes(q);
+      }).slice(0, 5)
     : [];
 
   return (
     <header className="sticky top-0 z-40 bg-white shadow-sm border-b border-slate-100">
-      {/* 1. TOP CONTACT & LOCATION BAR */}
+      {/* 1. TOP CONTACT, LOCATION & LANGUAGE BAR */}
       <div className="bg-slate-900 text-slate-300 text-xs py-2 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
             {/* City Selector */}
             <div className="relative">
               <button 
-                onClick={() => setShowCityDropdown(!showCityDropdown)}
+                onClick={() => { setShowCityDropdown(!showCityDropdown); setShowLangDropdown(false); }}
                 className="flex items-center gap-1.5 hover:text-white transition-colors font-medium text-slate-200"
               >
                 <MapPin className="w-3.5 h-3.5 text-blue-400" />
-                <span>Shahar: <strong className="text-white">{selectedCity}</strong></span>
+                <span>{t('cityLabel')} <strong className="text-white">{selectedCity}</strong></span>
                 <ChevronDown className="w-3 h-3 text-slate-400" />
               </button>
 
@@ -77,26 +82,30 @@ export default function Header({
               )}
             </div>
 
+            {/* Work schedule */}
             <div className="hidden md:flex items-center gap-1.5 text-slate-400">
               <Clock className="w-3.5 h-3.5 text-slate-500" />
-              <span>Har kuni: 08:30 — 18:30 (Dam olishsiz)</span>
+              <span>{t('workSchedule')}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3 sm:gap-5">
+            {/* Direct Phone */}
             <a 
               href="tel:+998712000000" 
               className="flex items-center gap-1.5 hover:text-white transition-colors font-bold text-white tracking-wide"
             >
               <Phone className="w-3.5 h-3.5 text-blue-400" />
-              <span>+998 71 200-00-00</span>
+              <span className="hidden xs:inline">+998 71 200-00-00</span>
             </a>
 
+            {/* Wholesale line */}
             <div className="hidden lg:flex items-center gap-1.5 text-amber-400 font-medium">
               <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <span>Optom ta'minot: <strong>+998 90 123-45-67</strong></span>
+              <span>{t('wholesaleSupport')} <strong>+998 90 123-45-67</strong></span>
             </div>
 
+            {/* Telegram Channel */}
             <a 
               href="https://t.me/optomelektro" 
               target="_blank" 
@@ -104,28 +113,66 @@ export default function Header({
               className="hidden sm:flex items-center gap-1 text-sky-400 hover:text-sky-300 font-semibold"
             >
               <Send className="w-3.5 h-3.5" />
-              <span>Telegram Kanal</span>
+              <span>{t('telegramChannel')}</span>
             </a>
 
             {/* Order Tracking */}
             <button
               onClick={onOpenTrackOrder}
-              className="hidden sm:flex items-center gap-1.5 text-slate-300 hover:text-white font-semibold text-[11px] transition-colors"
-              title="Buyurtma holatini bilish"
+              className="flex items-center gap-1.5 text-slate-300 hover:text-white font-semibold text-[11px] transition-colors"
+              title={t('trackOrder')}
             >
               <Package className="w-3.5 h-3.5 text-blue-400" />
-              <span>Buyurtmani tekshirish</span>
+              <span className="hidden sm:inline">{t('trackOrder')}</span>
             </button>
 
             {/* Admin Dashboard shortcut */}
             <Link
               href="/admin"
-              className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-600/30 text-blue-300 hover:bg-blue-600 hover:text-white transition-all font-semibold text-[11px] border border-blue-500/30"
-              title="Boshqaruv paneli"
+              className="hidden sm:flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-600/30 text-blue-300 hover:bg-blue-600 hover:text-white transition-all font-semibold text-[11px] border border-blue-500/30"
+              title={t('adminPanel')}
             >
               <ShieldCheck className="w-3 h-3 text-blue-400" />
-              <span>Admin Panel</span>
+              <span>{t('adminPanel')}</span>
             </Link>
+
+            {/* LANGUAGE SELECTOR (UZ / RU / EN) */}
+            <div className="relative">
+              <button
+                onClick={() => { setShowLangDropdown(!showLangDropdown); setShowCityDropdown(false); }}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 transition-all active:scale-95 shadow-sm"
+                title="Tilni tanlash / Выбор языка / Select language"
+              >
+                <span className="text-sm">{currentLangObj.flag}</span>
+                <span className="tracking-wider">{currentLangObj.short}</span>
+                <ChevronDown className="w-3 h-3 text-slate-400" />
+              </button>
+
+              {showLangDropdown && (
+                <div className="absolute right-0 top-full mt-2 w-36 bg-slate-800 rounded-xl shadow-2xl border border-slate-700 py-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                  {languages.map(l => (
+                    <button
+                      key={l.code}
+                      onClick={() => {
+                        setLang(l.code);
+                        setShowLangDropdown(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 text-xs transition-colors ${
+                        lang === l.code 
+                          ? 'bg-blue-600 text-white font-black' 
+                          : 'text-slate-200 hover:bg-slate-700'
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="text-base">{l.flag}</span>
+                        <span>{l.name}</span>
+                      </span>
+                      {lang === l.code && <span className="text-[10px] font-bold">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -134,7 +181,7 @@ export default function Header({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
         <div className="flex items-center justify-between gap-4 md:gap-8">
           
-          {/* LOGO from Image 1 */}
+          {/* LOGO */}
           <Link href="/" className="flex items-center gap-3 flex-shrink-0 group">
             <div className="relative w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200/80 p-1 shadow-sm group-hover:border-blue-500 transition-colors">
               <img 
@@ -153,7 +200,7 @@ export default function Header({
                 </span>
               </div>
               <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400 -mt-1">
-                Ulgurji & Chakana Bozor
+                {t('wholesaleRetailMarket')}
               </span>
             </div>
           </Link>
@@ -164,7 +211,7 @@ export default function Header({
             className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md shadow-blue-600/20 active:scale-95 flex-shrink-0"
           >
             <LayoutGrid className="w-4 h-4" />
-            <span>Katalog</span>
+            <span>{t('catalog')}</span>
           </button>
 
           {/* SEARCH BAR (Instant Live Search) */}
@@ -179,7 +226,7 @@ export default function Header({
                   setShowSearchResults(true);
                 }}
                 onFocus={() => setShowSearchResults(true)}
-                placeholder="Avtomat, kabel, LUX VOLT, shchit yoki tovar nomini qidiring..."
+                placeholder={t('searchPlaceholder')}
                 className="w-full pl-11 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-100 transition-all"
               />
               {searchQuery && (
@@ -195,7 +242,9 @@ export default function Header({
             {/* Live Search Results Dropdown */}
             {showSearchResults && filteredSuggestions.length > 0 && (
               <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 z-50">
-                <p className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">Qidiruv natijalari:</p>
+                <p className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  {t('searchResults')}
+                </p>
                 {filteredSuggestions.map(item => (
                   <button
                     key={item.id}
@@ -206,15 +255,15 @@ export default function Header({
                     className="w-full text-left p-2.5 hover:bg-slate-50 rounded-xl flex items-center justify-between gap-3 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <img src={item.image || '/images/products/avtomat-1p.png'} alt={item.name} className="w-9 h-9 object-contain rounded-lg border border-slate-100 p-1 bg-white" />
+                      <img src={item.image || '/images/products/avtomat-1p.png'} alt={getLocalized(item, 'name')} className="w-9 h-9 object-contain rounded-lg border border-slate-100 p-1 bg-white" />
                       <div>
-                        <p className="text-xs font-bold text-slate-800 leading-snug">{item.name}</p>
-                        <span className="text-[11px] font-medium text-slate-400">{item.brand} • {item.categoryName}</span>
+                        <p className="text-xs font-bold text-slate-800 leading-snug">{getLocalized(item, 'name')}</p>
+                        <span className="text-[11px] font-medium text-slate-400">{item.brand} • {getLocalized(item, 'categoryName')}</span>
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className="text-xs font-black text-blue-600">{Number(item.price).toLocaleString('uz-UZ')} so'm</p>
-                      <span className="text-[10px] text-emerald-600 font-bold">Omborda bor</span>
+                      <p className="text-xs font-black text-blue-600">{Number(item.price).toLocaleString('uz-UZ')} {t('som')}</p>
+                      <span className="text-[10px] text-emerald-600 font-bold">{t('inStock')}</span>
                     </div>
                   </button>
                 ))}
@@ -228,16 +277,16 @@ export default function Header({
             <button
               onClick={onOpenCatalog}
               className="sm:hidden p-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-100 transition-colors"
-              title="Katalog"
+              title={t('catalog')}
             >
               <LayoutGrid className="w-5 h-5" />
             </button>
 
-            {/* Favorites Icon (Desktop & Mobile) */}
+            {/* Favorites Icon */}
             <button 
               onClick={onOpenFavorites}
               className="flex flex-col items-center justify-center p-2 rounded-xl text-slate-600 hover:text-rose-600 hover:bg-rose-50/50 transition-colors relative"
-              title="Sevimlilar ro'yxati"
+              title={t('favorites')}
             >
               <div className="relative">
                 <Heart className={`w-5 h-5 ${favoritesCount > 0 ? 'text-rose-500 fill-rose-500' : ''}`} />
@@ -247,7 +296,7 @@ export default function Header({
                   </span>
                 )}
               </div>
-              <span className="hidden md:inline text-[10px] font-semibold mt-1">Sevimlilar</span>
+              <span className="hidden md:inline text-[10px] font-semibold mt-1">{t('favorites')}</span>
             </button>
 
             {/* CART BUTTON */}
@@ -264,9 +313,9 @@ export default function Header({
                 )}
               </div>
               <div className="hidden sm:flex flex-col text-left">
-                <span className="text-[10px] font-bold text-slate-500 uppercase leading-none">Savat</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase leading-none">{t('cart')}</span>
                 <span className="text-xs font-black text-slate-900 leading-tight">
-                  {cartTotal > 0 ? `${Number(cartTotal).toLocaleString('uz-UZ')} so'm` : "Bo'sh"}
+                  {cartTotal > 0 ? `${Number(cartTotal).toLocaleString('uz-UZ')} ${t('som')}` : t('cartEmpty')}
                 </span>
               </div>
             </button>
@@ -275,27 +324,28 @@ export default function Header({
         </div>
       </div>
 
-      {/* 3. CATEGORY QUICK LINKS BAR (sodda.uz style) */}
+      {/* 3. CATEGORY QUICK LINKS BAR */}
       <div className="bg-slate-50 border-t border-slate-200/60 px-4 sm:px-6 lg:px-8 py-2 overflow-x-auto">
         <div className="max-w-7xl mx-auto flex items-center gap-6 text-xs font-semibold text-slate-600 whitespace-nowrap">
           <button onClick={onOpenCatalog} className="text-blue-600 hover:underline flex items-center gap-1 font-bold">
             <LayoutGrid className="w-3.5 h-3.5" />
-            <span>Barcha turkumlar</span>
+            <span>{t('allTurkumlar')}</span>
           </button>
           <span className="text-slate-300">|</span>
-          <a href="#avtomatlar" className="hover:text-blue-600 transition-colors">Avtomatlar & UZO</a>
-          <a href="#kabellar" className="hover:text-blue-600 transition-colors">Kabellar & Simlar</a>
-          <a href="#shchitlar" className="hover:text-blue-600 transition-colors">Shchitlar & Qutilar</a>
-          <a href="#kontaktorlar" className="hover:text-blue-600 transition-colors">Kontaktorlar & Rele</a>
-          <a href="#led-yoritish" className="hover:text-blue-600 transition-colors">LED Sanoat Yoritish</a>
-          <a href="#stabilizatorlar" className="hover:text-blue-600 transition-colors">Stabilizatorlar</a>
+          <a href="#avtomatlar" className="hover:text-blue-600 transition-colors">{t('cat_avtomatlar')}</a>
+          <a href="#kabellar" className="hover:text-blue-600 transition-colors">{t('cat_kabellar')}</a>
+          <a href="#shchitlar" className="hover:text-blue-600 transition-colors">{t('cat_shchitlar')}</a>
+          <a href="#kontaktorlar" className="hover:text-blue-600 transition-colors">{t('cat_kontaktorlar')}</a>
+          <a href="#led-yoritish" className="hover:text-blue-600 transition-colors">{t('cat_led_yoritish')}</a>
+          <a href="#stabilizatorlar" className="hover:text-blue-600 transition-colors">{t('cat_stabilizatorlar')}</a>
+          <a href="#rozetkalar" className="hover:text-blue-600 transition-colors">{t('cat_rozetkalar')}</a>
+          <a href="#asboblar" className="hover:text-blue-600 transition-colors">{t('cat_asboblar')}</a>
           <a href="#luxvolt" className="text-purple-600 font-bold hover:underline flex items-center gap-1">
             <Zap className="w-3 h-3 text-purple-600" />
-            <span>LUX VOLT Mahsulotlari</span>
+            <span>{t('luxvoltProducts')}</span>
           </a>
         </div>
       </div>
     </header>
   );
 }
-

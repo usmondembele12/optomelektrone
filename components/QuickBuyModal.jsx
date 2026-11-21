@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X, Send, CheckCircle2, Phone, User, Zap, AlertCircle } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function QuickBuyModal({
   product,
@@ -9,6 +10,7 @@ export default function QuickBuyModal({
   onClose,
   onSuccess
 }) {
+  const { t, getLocalized } = useLanguage();
   const [customerName, setCustomerName] = useState('');
   const [phone, setPhone] = useState('+998 ');
   const [quantity, setQuantity] = useState(1);
@@ -21,15 +23,17 @@ export default function QuickBuyModal({
   const isWholesale = product.minWholesaleQty && quantity >= product.minWholesaleQty && product.wholesalePrice;
   const unitPrice = isWholesale ? product.wholesalePrice : product.price;
   const totalPrice = unitPrice * quantity;
+  const localizedName = getLocalized(product, 'name');
+  const localizedUnit = getLocalized(product, 'unit');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!customerName.trim()) {
-      setError("Iltimos, ismingizni kiriting!");
+      setError(t('fullNamePlaceholder'));
       return;
     }
     if (phone.trim().length < 13) {
-      setError("Iltimos, to'liq telefon raqamingizni kiriting!");
+      setError(t('phonePlaceholder'));
       return;
     }
 
@@ -40,7 +44,7 @@ export default function QuickBuyModal({
       customerName: customerName.trim(),
       phone: phone.trim(),
       city: 'Toshkent',
-      address: '1 bosishda tezkor buyurtma (Operator aniqlaydi)',
+      address: '1-Click Fast Order',
       deliveryMethod: 'yetkazib_berish',
       paymentMethod: 'naqd',
       notes: '1 bosishda tezkor xarid orqali buyurtma berildi',
@@ -68,7 +72,7 @@ export default function QuickBuyModal({
         setIsSuccess(true);
         if (onSuccess) onSuccess(data.order);
       } else {
-        setError(data.error || "Buyurtma yuborishda xatolik yuz berdi");
+        setError(data.error || "Xatolik yuz berdi");
       }
     } catch (err) {
       setError("Server bilan aloqa xatosi");
@@ -94,27 +98,50 @@ export default function QuickBuyModal({
             <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-500 mx-auto flex items-center justify-center">
               <CheckCircle2 className="w-10 h-10" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900">Tezkor Buyurtma Qabul Qilindi!</h3>
+            <h3 className="text-xl font-bold text-slate-900">{t('quickBuySuccess')}</h3>
             <p className="text-xs text-slate-500">
-              Ma'lumotlar Telegram botga yetkazildi. Operatorimiz 5 daqiqada sizga qo'ng'iroq qiladi!
+              {t('orderSuccessNotification')}
             </p>
             <button
               onClick={handleClose}
-              className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-sm"
+              className="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs"
             >
-              Yopish
+              {t('closeBtn')}
             </button>
           </div>
         ) : (
-          <div className="space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="text-base font-bold text-slate-900">1 Bosishda Buyurtma</h3>
-                <p className="text-xs text-slate-500">Tezkor xarid qilish</p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
+                  ⚡
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-base">{t('quickBuyTitle')}</h3>
+                  <p className="text-[11px] text-slate-400">{t('quickBuyDesc')}</p>
+                </div>
               </div>
               <button onClick={handleClose} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
                 <X className="w-5 h-5" />
               </button>
+            </div>
+
+            {/* Selected item summary */}
+            <div className="p-3 bg-slate-50 rounded-xl flex items-center gap-3 border border-slate-100">
+              <img
+                src={product.image || '/images/products/avtomat-1p.png'}
+                alt={localizedName}
+                className="w-12 h-12 object-contain rounded-lg border border-slate-200/60 p-1 bg-white"
+              />
+              <div className="flex-1">
+                <p className="text-xs font-bold text-slate-800 line-clamp-1">{localizedName}</p>
+                <div className="flex items-baseline gap-2 mt-0.5">
+                  <span className="text-xs font-black text-blue-600">
+                    {Number(unitPrice).toLocaleString('uz-UZ')} {t('som')}
+                  </span>
+                  <span className="text-[10px] text-slate-400">/{localizedUnit}</span>
+                </div>
+              </div>
             </div>
 
             {error && (
@@ -124,41 +151,10 @@ export default function QuickBuyModal({
               </div>
             )}
 
-            {/* Product summary */}
-            <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100">
-              <img
-                src={(product.image && (product.image.startsWith('/') || product.image.startsWith('http'))) ? product.image : '/images/products/avtomat-1p.png'}
-                alt={product.name}
-                onError={(e) => { e.currentTarget.src = '/images/products/avtomat-1p.png'; }}
-                className="w-14 h-14 object-contain rounded-xl border border-slate-200 p-1 bg-white"
-              />
-              <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-xs text-slate-900 truncate">{product.name}</h4>
-                <p className="text-xs font-black text-blue-600 mt-0.5">
-                  {Number(unitPrice).toLocaleString('uz-UZ')} so'm
-                </p>
-              </div>
-
-              {/* Quantity */}
-              <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white">
-                <button
-                  type="button"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-slate-100"
-                >-</button>
-                <span className="w-7 text-center text-xs font-bold">{quantity}</span>
-                <button
-                  type="button"
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-slate-100"
-                >+</button>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Ismingiz *
+                <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  {t('fullName')} *
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -167,15 +163,15 @@ export default function QuickBuyModal({
                     required
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
-                    placeholder="Ismingizni kiriting"
-                    className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder={t('fullNamePlaceholder')}
+                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Telefon Raqamingiz *
+                <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  {t('yourPhone')} *
                 </label>
                 <div className="relative">
                   <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -184,27 +180,45 @@ export default function QuickBuyModal({
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+998 90 123 45 67"
-                    className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder={t('phonePlaceholder')}
+                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                   />
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center justify-between border-t border-slate-100">
+              {/* Quantity */}
+              <div className="flex items-center justify-between pt-1">
+                <span className="font-bold text-slate-700">{t('quantityLabel')}</span>
+                <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-8 h-8 flex items-center justify-center font-bold text-slate-600 hover:bg-slate-200"
+                  >-</button>
+                  <span className="w-8 text-center font-bold text-slate-900">{quantity}</span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-8 h-8 flex items-center justify-center font-bold text-slate-600 hover:bg-slate-200"
+                  >+</button>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-slate-400">Jami to'lov:</span>
-                  <p className="font-black text-lg text-slate-900">
-                    {Number(totalPrice).toLocaleString('uz-UZ')} so'm
+                  <span className="text-slate-400 text-[11px]">{t('totalLabel')}</span>
+                  <p className="text-base font-black text-slate-900">
+                    {Number(totalPrice).toLocaleString('uz-UZ')} {t('som')}
                   </p>
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-600/20 flex items-center gap-2"
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl font-bold text-xs shadow-md shadow-blue-600/20 transition-all flex items-center gap-1.5"
                 >
-                  <Send className="w-4 h-4" />
-                  <span>{loading ? "Yuborilmoqda..." : "Buyurtma berish"}</span>
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{loading ? "..." : t('submitQuickBuy')}</span>
                 </button>
               </div>
             </form>
@@ -215,4 +229,3 @@ export default function QuickBuyModal({
     </div>
   );
 }
-

@@ -1,6 +1,7 @@
 "use client";
 
-import { X, Heart, ShoppingCart, Trash2, ArrowRight, Zap, Check } from 'lucide-react';
+import { X, Heart, ShoppingCart, Trash2, Check } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function FavoritesDrawer({
   isOpen,
@@ -12,9 +13,9 @@ export default function FavoritesDrawer({
   onRemoveFavorite,
   onOpenDetail
 }) {
+  const { t, getLocalized } = useLanguage();
   if (!isOpen) return null;
 
-  // Find all favorite products
   const favoriteProducts = products.filter(p => favorites.includes(p.id));
 
   const handleAddAllToCart = () => {
@@ -41,11 +42,9 @@ export default function FavoritesDrawer({
                 <Heart className="w-5 h-5 fill-rose-500" />
               </div>
               <div>
-                <h3 className="font-black text-slate-900 text-lg">Sevimlilar</h3>
+                <h3 className="font-black text-slate-900 text-lg">{t('favoritesTitle')}</h3>
                 <p className="text-xs text-slate-500 font-medium">
-                  {favoriteProducts.length > 0 
-                    ? `${favoriteProducts.length} ta saqlangan mahsulot`
-                    : 'Saqlangan mahsulotlar'}
+                  {favoriteProducts.length} {t('unitPiece')}
                 </p>
               </div>
             </div>
@@ -66,16 +65,16 @@ export default function FavoritesDrawer({
                   <Heart className="w-10 h-10" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900 text-base">Sevimlilar ro'yxati bo'sh</h4>
+                  <h4 className="font-bold text-slate-900 text-base">{t('favoritesEmptyTitle')}</h4>
                   <p className="text-xs text-slate-500 mt-1 max-w-xs leading-relaxed">
-                    Sizga yoqqan mahsulotlarni keyinroq tez topish va buyurtma qilish uchun mahsulot kartochkasidagi yurakcha belgisini bosing.
+                    {t('favoritesEmptyDesc')}
                   </p>
                 </div>
                 <button
                   onClick={onClose}
                   className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-600/20 transition-all"
                 >
-                  Katalogga o'tish
+                  {t('catalog')}
                 </button>
               </div>
             ) : (
@@ -84,6 +83,7 @@ export default function FavoritesDrawer({
                 const validImage = (product.image && (product.image.startsWith('/') || product.image.startsWith('http')))
                   ? product.image
                   : '/images/products/avtomat-1p.png';
+                const localizedName = getLocalized(product, 'name');
 
                 return (
                   <div 
@@ -99,7 +99,7 @@ export default function FavoritesDrawer({
                     >
                       <img
                         src={validImage}
-                        alt={product.name}
+                        alt={localizedName}
                         onError={(e) => { e.currentTarget.src = '/images/products/avtomat-1p.png'; }}
                         className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform"
                       />
@@ -114,7 +114,7 @@ export default function FavoritesDrawer({
                           <button
                             onClick={() => onRemoveFavorite && onRemoveFavorite(product.id)}
                             className="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors"
-                            title="Sevimlilardan o'chirish"
+                            title="O'chirish"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -127,18 +127,18 @@ export default function FavoritesDrawer({
                           }}
                           className="font-bold text-xs text-slate-900 line-clamp-2 leading-snug hover:text-blue-600 cursor-pointer"
                         >
-                          {product.name}
+                          {localizedName}
                         </h4>
                       </div>
 
                       <div className="flex items-center justify-between pt-2">
                         <div>
                           <p className="font-black text-xs text-slate-900">
-                            {Number(product.price).toLocaleString('uz-UZ')} so'm
+                            {Number(product.price).toLocaleString('uz-UZ')} {t('som')}
                           </p>
                           {product.wholesalePrice && (
                             <span className="text-[10px] text-blue-600 font-bold block">
-                              Optom: {Number(product.wholesalePrice).toLocaleString('uz-UZ')} so'm
+                              {t('wholesalePriceLabel')} {Number(product.wholesalePrice).toLocaleString('uz-UZ')} {t('som')}
                             </span>
                           )}
                         </div>
@@ -154,12 +154,12 @@ export default function FavoritesDrawer({
                           {inCart ? (
                             <>
                               <Check className="w-3.5 h-3.5" />
-                              <span>Savatda ({inCart.quantity})</span>
+                              <span>{t('inCartBtn')} ({inCart.quantity})</span>
                             </>
                           ) : (
                             <>
                               <ShoppingCart className="w-3.5 h-3.5" />
-                              <span>Savatga</span>
+                              <span>{t('addToCartBtn')}</span>
                             </>
                           )}
                         </button>
@@ -179,14 +179,14 @@ export default function FavoritesDrawer({
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-600/25 transition-all flex items-center justify-center gap-2"
               >
                 <ShoppingCart className="w-4 h-4" />
-                <span>Barchasini savatga qo'shish</span>
+                <span>{t('addToCartBtn')} (ALL)</span>
               </button>
 
               <button
                 onClick={onClose}
                 className="w-full py-2.5 text-xs font-bold text-slate-600 hover:text-slate-800 transition-colors"
               >
-                Xaridni davom ettirish
+                {t('continueShopping')}
               </button>
             </div>
           )}
@@ -196,4 +196,3 @@ export default function FavoritesDrawer({
     </div>
   );
 }
-

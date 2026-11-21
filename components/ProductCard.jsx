@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ShoppingCart, Zap, Check, Heart, Eye, Trash2 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ProductCard({ 
   product, 
@@ -13,6 +14,7 @@ export default function ProductCard({
   onToggleFavorite,
   cartQuantity = 0
 }) {
+  const { t, getLocalized } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
 
   const priceFormatted = Number(product.price).toLocaleString('uz-UZ');
@@ -22,6 +24,10 @@ export default function ProductCard({
   const validImage = (product.image && (product.image.startsWith('/') || product.image.startsWith('http')))
     ? product.image
     : '/images/products/avtomat-1p.png';
+
+  const localizedName = getLocalized(product, 'name');
+  const localizedCategory = getLocalized(product, 'categoryName');
+  const localizedUnit = getLocalized(product, 'unit');
 
   return (
     <div 
@@ -37,7 +43,7 @@ export default function ProductCard({
           </span>
           {product.isFeatured && (
             <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-white shadow-sm pointer-events-auto">
-              ⭐ TAVSIYA
+              {t('badgeFeatured')}
             </span>
           )}
         </div>
@@ -47,12 +53,12 @@ export default function ProductCard({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                if (confirm(`"${product.name}" mahsulotini o'chirmoqchimisiz?`)) {
+                if (confirm(`"${localizedName}" ${t('deleteProductConfirm')}`)) {
                   onDeleteProduct(product.id, product.name);
                 }
               }}
               className="w-8 h-8 rounded-full bg-white/95 hover:bg-rose-50 text-slate-400 hover:text-rose-600 backdrop-blur-md shadow-sm border border-slate-200/60 flex items-center justify-center transition-all opacity-75 hover:opacity-100"
-              title="Mahsulotni o'chirish"
+              title={t('deleteProductConfirm')}
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -66,7 +72,7 @@ export default function ProductCard({
             className={`w-8 h-8 rounded-full bg-white/90 backdrop-blur-md shadow-sm border border-slate-200/60 flex items-center justify-center transition-all ${
               isFavorite ? 'text-rose-500' : 'text-slate-400 hover:text-rose-500'
             }`}
-            title="Sevimlilarga qo'shish"
+            title={t('favorites')}
           >
             <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500' : ''}`} />
           </button>
@@ -80,7 +86,7 @@ export default function ProductCard({
       >
         <img
           src={validImage}
-          alt={product.name}
+          alt={localizedName}
           onError={(e) => { e.currentTarget.src = '/images/products/avtomat-1p.png'; }}
           className="max-h-full max-w-full object-contain group-hover:scale-108 transition-transform duration-300"
         />
@@ -95,7 +101,7 @@ export default function ProductCard({
             className="px-3.5 py-1.5 rounded-xl bg-white text-slate-800 text-xs font-bold shadow-lg flex items-center gap-1.5 hover:bg-blue-600 hover:text-white transition-colors"
           >
             <Eye className="w-3.5 h-3.5" />
-            <span>Batafsil ko'rish</span>
+            <span>{t('viewDetailsBtn')}</span>
           </button>
         </div>
       </div>
@@ -105,10 +111,10 @@ export default function ProductCard({
         <div className="space-y-1.5">
           {/* Category & Stock status */}
           <div className="flex items-center justify-between text-[11px]">
-            <span className="text-slate-400 font-medium">{product.categoryName}</span>
+            <span className="text-slate-400 font-medium">{localizedCategory}</span>
             <span className="text-emerald-600 font-bold flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              Omborda bor
+              {t('inStock')}
             </span>
           </div>
 
@@ -116,9 +122,9 @@ export default function ProductCard({
           <h4 
             onClick={() => onOpenDetail && onOpenDetail(product)}
             className="font-bold text-sm text-slate-900 line-clamp-2 leading-snug hover:text-blue-600 transition-colors cursor-pointer"
-            title={product.name}
+            title={localizedName}
           >
-            {product.name}
+            {localizedName}
           </h4>
 
           {/* Wholesale Tier Highlight */}
@@ -126,10 +132,10 @@ export default function ProductCard({
             <div className="bg-blue-50 border border-blue-100/80 rounded-xl px-2.5 py-1.5 flex items-center justify-between text-xs">
               <span className="text-[11px] font-bold text-blue-700 flex items-center gap-1">
                 <Zap className="w-3 h-3 text-blue-600" />
-                Optom narx:
+                {t('wholesalePriceLabel')}
               </span>
               <span className="font-extrabold text-blue-800">
-                {wholesalePriceFormatted} so'm
+                {wholesalePriceFormatted} {t('som')}
               </span>
             </div>
           )}
@@ -140,14 +146,14 @@ export default function ProductCard({
           {/* Prices */}
           <div className="flex items-baseline gap-2">
             <span className="text-lg font-black text-slate-900">
-              {priceFormatted} <span className="text-xs font-bold text-slate-500">so'm</span>
+              {priceFormatted} <span className="text-xs font-bold text-slate-500">{t('som')}</span>
             </span>
             {oldPriceFormatted && (
               <span className="text-xs text-slate-400 line-through font-medium">
-                {oldPriceFormatted} so'm
+                {oldPriceFormatted} {t('som')}
               </span>
             )}
-            <span className="text-[10px] text-slate-400">/{product.unit || 'dona'}</span>
+            <span className="text-[10px] text-slate-400">/{localizedUnit}</span>
           </div>
 
           {/* Action Buttons */}
@@ -157,7 +163,7 @@ export default function ProductCard({
               onClick={() => onQuickBuy && onQuickBuy(product)}
               className="w-full py-2 px-2 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 text-xs font-bold transition-all text-center whitespace-nowrap active:scale-95"
             >
-              1 bosishda xarid
+              {t('quickBuyBtn')}
             </button>
 
             {/* Add to cart */}
@@ -172,12 +178,12 @@ export default function ProductCard({
               {cartQuantity > 0 ? (
                 <>
                   <Check className="w-3.5 h-3.5" />
-                  <span>Savatda ({cartQuantity})</span>
+                  <span>{t('inCartBtn')} ({cartQuantity})</span>
                 </>
               ) : (
                 <>
                   <ShoppingCart className="w-3.5 h-3.5" />
-                  <span>Savatga</span>
+                  <span>{t('addToCartBtn')}</span>
                 </>
               )}
             </button>
@@ -187,4 +193,3 @@ export default function ProductCard({
     </div>
   );
 }
-

@@ -8,9 +8,9 @@ import {
   Activity, 
   Power, 
   Sun, 
-  Wrench,
-  ArrowRight
+  Wrench
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const iconMap = {
   avtomatlar: Zap,
@@ -24,15 +24,17 @@ const iconMap = {
 };
 
 export default function CategoryGrid({ categories = [], selectedCategory, onSelectCategory }) {
+  const { t } = useLanguage();
+
   return (
     <section className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Turkumlar bo'yicha saralash
+            {t('catalogTitle')}
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Barcha elektr tovarlari ishonchli zavod standartlarida jamlangan
+            {t('heroDesc1')}
           </p>
         </div>
 
@@ -41,7 +43,7 @@ export default function CategoryGrid({ categories = [], selectedCategory, onSele
             onClick={() => onSelectCategory(null)}
             className="text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
           >
-            Barchasini ko'rsatish
+            {t('filterAll')}
           </button>
         )}
       </div>
@@ -50,6 +52,7 @@ export default function CategoryGrid({ categories = [], selectedCategory, onSele
         {categories.map((cat) => {
           const IconComponent = iconMap[cat.id] || Zap;
           const isSelected = selectedCategory === cat.id;
+          const localizedName = t('cat_' + (cat.id || '').replace(/-/g, '_'), cat.name);
 
           return (
             <button
@@ -72,16 +75,16 @@ export default function CategoryGrid({ categories = [], selectedCategory, onSele
                 <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                   isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
                 }`}>
-                  {cat.count} ta
+                  {cat.count} {t('unitPiece')}
                 </span>
               </div>
 
               <div>
                 <h4 className={`text-sm font-bold leading-tight ${isSelected ? 'text-white' : 'text-slate-900 group-hover:text-blue-600'}`}>
-                  {cat.name}
+                  {localizedName}
                 </h4>
                 <p className={`text-[11px] mt-0.5 ${isSelected ? 'text-blue-100' : 'text-slate-400'}`}>
-                  Optom va chakana
+                  {t('wholesaleRetailMarket')}
                 </p>
               </div>
             </button>
@@ -91,4 +94,3 @@ export default function CategoryGrid({ categories = [], selectedCategory, onSele
     </section>
   );
 }
-

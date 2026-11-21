@@ -1,6 +1,7 @@
 "use client";
 
 import { X, Zap, Layers, Shield, Cpu, Activity, Power, Sun, Wrench, ChevronRight } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const iconMap = {
   avtomatlar: Zap,
@@ -19,6 +20,7 @@ export default function CategoryDrawer({
   categories = [],
   onSelectCategory
 }) {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   return (
@@ -34,8 +36,8 @@ export default function CategoryDrawer({
                 ⚡
               </div>
               <div>
-                <h3 className="font-extrabold text-slate-900 text-base">Mahsulotlar Katalogi</h3>
-                <p className="text-xs text-slate-400">Barcha mavjud turkumlar</p>
+                <h3 className="font-extrabold text-slate-900 text-base">{t('catalogTitle')}</h3>
+                <p className="text-xs text-slate-400">{t('allCategories')}</p>
               </div>
             </div>
             <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 rounded-xl">
@@ -46,6 +48,7 @@ export default function CategoryDrawer({
           <div className="flex-1 overflow-y-auto p-4 space-y-1.5 divide-y divide-slate-100">
             {categories.map((cat) => {
               const Icon = iconMap[cat.id] || Zap;
+              const localizedName = t('cat_' + (cat.id || '').replace(/-/g, '_'), cat.name);
               return (
                 <button
                   key={cat.id}
@@ -60,8 +63,8 @@ export default function CategoryDrawer({
                       <Icon className="w-5 h-5" />
                     </div>
                     <div className="text-left">
-                      <h4 className="font-bold text-sm leading-tight">{cat.name}</h4>
-                      <span className="text-xs text-slate-400">{cat.count} ta mahsulot turi</span>
+                      <h4 className="font-bold text-sm leading-tight">{localizedName}</h4>
+                      <span className="text-xs text-slate-400">{cat.count} {t('unitPiece')}</span>
                     </div>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
@@ -72,7 +75,7 @@ export default function CategoryDrawer({
 
           <div className="p-4 bg-slate-50 border-t border-slate-100 text-center">
             <p className="text-xs text-slate-500">
-              Katta partiyada optom buyurtma uchun: <br />
+              {t('wholesaleSupport')} <br />
               <strong className="text-blue-600 font-bold">+998 90 123-45-67</strong>
             </p>
           </div>
@@ -82,4 +85,3 @@ export default function CategoryDrawer({
     </div>
   );
 }
-

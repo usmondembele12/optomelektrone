@@ -14,9 +14,8 @@ import FavoritesDrawer from '../components/FavoritesDrawer';
 import TrackOrderModal from '../components/TrackOrderModal';
 import FloatingContactBar from '../components/FloatingContactBar';
 import Footer from '../components/Footer';
+import { useLanguage } from '../context/LanguageContext';
 import { 
-  SlidersHorizontal, 
-  Zap, 
   ArrowUpDown, 
   CheckCircle2, 
   PhoneCall, 
@@ -28,6 +27,7 @@ import {
 } from 'lucide-react';
 
 export default function HomePage() {
+  const { lang, t, getLocalized } = useLanguage();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +35,7 @@ export default function HomePage() {
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedBrand, setSelectedBrand] = useState('Barchasi');
+  const [selectedBrand, setSelectedBrand] = useState('ALL');
   const [sortBy, setSortBy] = useState('popular');
 
   // Cart & Favorites
@@ -58,7 +58,7 @@ export default function HomePage() {
 
   const productsRef = useRef(null);
 
-  // Helper to merge local client overrides (additions, edits, deletions)
+  // Helper to merge local client overrides
   const applyClientOverrides = (apiProducts) => {
     if (typeof window === 'undefined') return apiProducts || [];
     try {
@@ -90,67 +90,70 @@ export default function HomePage() {
 
   const handleDeleteProduct = async (id, name) => {
     try {
-      // 1. Remove from custom products
       const custom = JSON.parse(localStorage.getItem('optom_custom_products') || '[]');
       const filteredCustom = custom.filter(p => String(p.id) !== String(id) && (!name || p.name.toLowerCase() !== name.toLowerCase()));
       localStorage.setItem('optom_custom_products', JSON.stringify(filteredCustom));
 
-      // 2. Add to deleted IDs and names
       const deletedIds = JSON.parse(localStorage.getItem('optom_deleted_product_ids') || '[]');
       if (!deletedIds.map(String).includes(String(id))) {
         deletedIds.push(String(id));
+        localStorage.setItem('optom_deleted_product_ids', JSON.stringify(deletedIds));
       }
-      localStorage.setItem('optom_deleted_product_ids', JSON.stringify(deletedIds));
 
       if (name) {
         const deletedNames = JSON.parse(localStorage.getItem('optom_deleted_product_names') || '[]');
-        const nLower = name.toLowerCase().trim();
-        if (!deletedNames.includes(nLower)) {
-          deletedNames.push(nLower);
+        const cleanName = String(name).toLowerCase().trim();
+        if (!deletedNames.includes(cleanName)) {
+          deletedNames.push(cleanName);
+          localStorage.setItem('optom_deleted_product_names', JSON.stringify(deletedNames));
         }
-        localStorage.setItem('optom_deleted_product_names', JSON.stringify(deletedNames));
       }
 
-      // 3. Call server DELETE API
+      setProducts(prev => prev.filter(p => String(p.id) !== String(id) && (!name || (p.name && p.name.toLowerCase() !== name.toLowerCase()))));
+
       try {
         await fetch(`/api/products/${id}`, { method: 'DELETE' });
       } catch (_) {}
 
-      // 4. Update UI immediately
-      setProducts(prev => prev.filter(p => String(p.id) !== String(id) && (!name || p.name.toLowerCase() !== name.toLowerCase())));
-      showToast(`"${name || 'Mahsulot'}" muvaffaqiyatli o'chirildi!`);
+      try {
+        if (typeof BroadcastChannel !== 'undefined') {
+          new BroadcastChannel('optom_sync').postMessage({ type: 'product_deleted', id, name });
+        }
+      } catch (_) {}
 
-      // 5. Broadcast to other tabs
-      const syncChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('optom_sync') : null;
-      if (syncChannel) {
-        syncChannel.postMessage({ type: 'PRODUCT_DELETED', id, name });
-        syncChannel.close();
-      }
-    } catch (err) {
-      console.error('Delete error:', err);
+      showToast(t('toastProductDeleted'));
+    } catch (e) {
+      console.error(e);
     }
   };
 
-  // Load Initial Data
   const loadData = async () => {
     try {
-      const [prodRes, catRes] = await Promise.all([
-        fetch('/api/products?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
-        fetch('/api/categories?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => [])
+      const [prodsRes, catsRes] = await Promise.all([
+        fetch('/api/products', { cache: 'no-store' }),
+        fetch('/api/categories', { cache: 'no-store' })
       ]);
-      const initialList = Array.isArray(prodRes) && prodRes.length > 0 ? prodRes : products;
-      const mergedProducts = applyClientOverrides(initialList);
-      setProducts(mergedProducts);
-      if (Array.isArray(catRes)) setCategories(catRes);
+
+      if (prodsRes.ok) {
+        const prodsData = await prodsRes.json();
+        const rawList = Array.isArray(prodsData) ? prodsData : (prodsData.products || []);
+        const merged = applyClientOverrides(rawList);
+        setProducts(merged);
+      }
+
+      if (catsRes.ok) {
+        const catsData = await catsRes.json();
+        const rawCats = Array.isArray(catsData) ? catsData : (catsData.categories || []);
+        setCategories(rawCats);
+      }
     } catch (err) {
-      console.error('Failed to load API data:', err);
+      console.error("Failed to load initial data:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    // 1. Immediately apply local overrides so newly added / deleted products are instantly shown
     try {
       const custom = JSON.parse(localStorage.getItem('optom_custom_products') || '[]');
       const deleted = JSON.parse(localStorage.getItem('optom_deleted_product_ids') || '[]');
@@ -161,11 +164,9 @@ export default function HomePage() {
 
     loadData();
 
-    // Auto-refresh when tab is focused
     const handleFocus = () => loadData();
     window.addEventListener('focus', handleFocus);
 
-    // Real-time BroadcastChannel sync across tabs
     const syncChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('optom_sync') : null;
     if (syncChannel) {
       syncChannel.onmessage = () => {
@@ -173,7 +174,6 @@ export default function HomePage() {
       };
     }
 
-    // Real-time iframe postMessage sync (when admin is open in iframe)
     const handleMessage = (e) => {
       if (e.data && e.data.optom_sync) {
         loadData();
@@ -181,7 +181,6 @@ export default function HomePage() {
     };
     window.addEventListener('message', handleMessage);
 
-    // Real-time localStorage change sync
     const handleStorage = (e) => {
       if (!e.key || e.key === 'optom_custom_products' || e.key === 'optom_deleted_product_ids') {
         loadData();
@@ -190,14 +189,12 @@ export default function HomePage() {
     window.addEventListener('storage', handleStorage);
     window.addEventListener('optom_sync', () => loadData());
 
-    // Periodic background sync every 5 seconds
     const interval = setInterval(() => {
       if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
         loadData();
       }
     }, 5000);
 
-    // Load cart from localStorage
     try {
       const savedCart = localStorage.getItem('optom_cart');
       if (savedCart) setCart(JSON.parse(savedCart));
@@ -215,7 +212,6 @@ export default function HomePage() {
     };
   }, []);
 
-  // Save Cart & Favs to localStorage
   useEffect(() => {
     try {
       localStorage.setItem('optom_cart', JSON.stringify(cart));
@@ -233,7 +229,6 @@ export default function HomePage() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  // Cart Handlers
   const handleAddToCart = (product, qty = 1) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
@@ -259,7 +254,7 @@ export default function HomePage() {
         ];
       }
     });
-    showToast(`"${product.name}" savatga qo'shildi!`);
+    showToast(`"${getLocalized(product, 'name')}" ${t('toastAddedToCart')}`);
   };
 
   const handleUpdateCartQuantity = (id, newQty) => {
@@ -274,6 +269,7 @@ export default function HomePage() {
 
   const handleRemoveCartItem = (id) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
+    showToast(t('toastRemovedFromCart'));
   };
 
   const handleClearCart = () => {
@@ -284,16 +280,15 @@ export default function HomePage() {
     setFavorites((prev) => {
       const exists = prev.includes(id);
       if (exists) {
-        showToast("Sevimlilardan o'chirildi");
+        showToast(t('toastRemovedFavorite'));
         return prev.filter((favId) => favId !== id);
       } else {
-        showToast("Sevimlilarga qo'shildi!");
+        showToast(t('toastAddedFavorite'));
         return [...prev, id];
       }
     });
   };
 
-  // Calculations for Header Cart Button
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotal = cart.reduce((sum, item) => {
     const isWholesale = item.minWholesaleQty && item.quantity >= item.minWholesaleQty && item.wholesalePrice;
@@ -301,10 +296,9 @@ export default function HomePage() {
     return sum + (price * item.quantity);
   }, 0);
 
-  // Filtered & Sorted Products
   const brandsList = useMemo(() => {
-    const list = ['Barchasi'];
-    const knownBrands = ['LUX VOLT', 'Schneider Electric', 'CHINT', 'Andijon Kabel', "O'z-kabel", 'IEK', 'ZUBR'];
+    const list = ['ALL'];
+    const knownBrands = ['LUX VOLT', 'Schneider Electric', 'CHINT', 'Andijon Kabel', "O'z-kabel", 'IEK', 'ZUBR', 'UNI-T'];
     knownBrands.forEach(b => { if (!list.includes(b)) list.push(b); });
     products.forEach(p => {
       if (p.brand && !list.some(b => b.toLowerCase() === p.brand.toLowerCase())) {
@@ -319,13 +313,15 @@ export default function HomePage() {
 
     // Search
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.brand.toLowerCase().includes(q) ||
-          (p.description && p.description.toLowerCase().includes(q))
-      );
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter((p) => {
+        const locName = getLocalized(p, 'name').toLowerCase();
+        const rawName = (p.name || '').toLowerCase();
+        const brand = (p.brand || '').toLowerCase();
+        const desc = (p.description || '').toLowerCase();
+        const locCat = getLocalized(p, 'categoryName').toLowerCase();
+        return locName.includes(q) || rawName.includes(q) || brand.includes(q) || desc.includes(q) || locCat.includes(q);
+      });
     }
 
     // Category
@@ -334,8 +330,8 @@ export default function HomePage() {
     }
 
     // Brand
-    if (selectedBrand !== 'Barchasi') {
-      result = result.filter((p) => p.brand.toLowerCase() === selectedBrand.toLowerCase());
+    if (selectedBrand && selectedBrand !== 'ALL') {
+      result = result.filter((p) => (p.brand || '').toLowerCase() === selectedBrand.toLowerCase());
     }
 
     // Only Favorites
@@ -353,7 +349,7 @@ export default function HomePage() {
     }
 
     return result;
-  }, [products, searchQuery, selectedCategory, selectedBrand, sortBy]);
+  }, [products, searchQuery, selectedCategory, selectedBrand, sortBy, onlyFavorites, favorites, lang]);
 
   const scrollToProducts = () => {
     if (productsRef.current) {
@@ -382,7 +378,7 @@ export default function HomePage() {
       {/* 2. MAIN STOREFRONT CONTENT */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-12">
         
-        {/* HERO SLIDER BANNER (Contains the customized LUX VOLT banner from Image 2!) */}
+        {/* HERO SLIDER BANNER */}
         <HeroSlider
           onSelectBrand={(brand) => {
             setSelectedBrand(brand);
@@ -391,7 +387,7 @@ export default function HomePage() {
           onScrollToProducts={scrollToProducts}
         />
 
-        {/* CATEGORY GRID (sodda.uz style) */}
+        {/* CATEGORY GRID */}
         <CategoryGrid
           categories={categories}
           selectedCategory={selectedCategory}
@@ -410,11 +406,11 @@ export default function HomePage() {
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-6 rounded-full bg-blue-600"></span>
                 <h3 className="text-2xl font-black text-slate-900 tracking-tight">
-                  Elektr Mahsulotlari va Jihozlar
+                  {t('catalogTitle')}
                 </h3>
               </div>
               <p className="text-xs sm:text-sm text-slate-500 mt-1 pl-4">
-                Jami <strong className="text-blue-600">{filteredProducts.length} ta</strong> tovar topildi
+                <strong className="text-blue-600">{filteredProducts.length}</strong> {t('productsFound')}
               </p>
             </div>
 
@@ -431,38 +427,38 @@ export default function HomePage() {
                     ? 'bg-rose-500 text-white shadow-rose-500/25 ring-2 ring-rose-300'
                     : 'bg-white text-slate-700 border border-slate-200 hover:border-rose-300 hover:text-rose-600'
                 }`}
-                title="Faqat sevimli mahsulotlarni ko'rsatish"
+                title={t('filterFavoritesOnly')}
               >
                 <Heart className={`w-3.5 h-3.5 ${onlyFavorites ? 'fill-white text-white' : favorites.length > 0 ? 'text-rose-500 fill-rose-500' : 'text-slate-400'}`} />
-                <span>Sevimlilar ({favorites.length})</span>
+                <span>{t('favorites')} ({favorites.length})</span>
               </button>
 
               <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 shadow-sm">
                 <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
-                <span>Saralash:</span>
+                <span>{t('sortLabel')}</span>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="bg-transparent focus:outline-none text-blue-600 font-bold cursor-pointer"
                 >
-                  <option value="popular">Eng ommabop</option>
-                  <option value="price_asc">Arzondan qimmatga</option>
-                  <option value="price_desc">Qimmatdan arzonga</option>
+                  <option value="popular">{t('sortPopular')}</option>
+                  <option value="price_asc">{t('sortPriceAsc')}</option>
+                  <option value="price_desc">{t('sortPriceDesc')}</option>
                 </select>
               </div>
 
-              {(selectedCategory || selectedBrand !== 'Barchasi' || searchQuery || onlyFavorites) && (
+              {(selectedCategory || selectedBrand !== 'ALL' || searchQuery || onlyFavorites) && (
                 <button
                   onClick={() => {
                     setSelectedCategory(null);
-                    setSelectedBrand('Barchasi');
+                    setSelectedBrand('ALL');
                     setSearchQuery('');
                     setOnlyFavorites(false);
                   }}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold transition-colors"
                 >
                   <FilterX className="w-3.5 h-3.5" />
-                  <span>Filtrni tozalash</span>
+                  <span>{t('filterClear')}</span>
                 </button>
               )}
             </div>
@@ -470,19 +466,23 @@ export default function HomePage() {
 
           {/* Brand Filter Tabs */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
-            {brandsList.map((brand) => (
-              <button
-                key={brand}
-                onClick={() => setSelectedBrand(brand)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  selectedBrand === brand
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                    : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400 hover:text-blue-600'
-                }`}
-              >
-                {brand}
-              </button>
-            ))}
+            {brandsList.map((brand) => {
+              const label = brand === 'ALL' ? t('filterAll') : brand;
+              const isSelected = selectedBrand === brand;
+              return (
+                <button
+                  key={brand}
+                  onClick={() => setSelectedBrand(brand)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                    isSelected
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                      : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400 hover:text-blue-600'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
 
           {/* Products Grid */}
@@ -497,20 +497,20 @@ export default function HomePage() {
               <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-500 mx-auto flex items-center justify-center">
                 <Search className="w-8 h-8" />
               </div>
-              <h4 className="text-lg font-bold text-slate-800">Hech narsa topilmadi</h4>
+              <h4 className="text-lg font-bold text-slate-800">{t('noProductsFound')}</h4>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Qidiruv so'zini yoki tanlangan filtrlarni o'zgartirib ko'ring.
+                {t('noProductsDesc')}
               </p>
               <button
                 onClick={() => {
                   setSelectedCategory(null);
-                  setSelectedBrand('Barchasi');
+                  setSelectedBrand('ALL');
                   setSearchQuery('');
                   setOnlyFavorites(false);
                 }}
                 className="px-5 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-md shadow-blue-600/20"
               >
-                Barcha tovarlarni ko'rish
+                {t('filterClear')}
               </button>
             </div>
           ) : (
@@ -540,15 +540,15 @@ export default function HomePage() {
           <div className="relative z-10 max-w-2xl space-y-4">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-400/30">
               <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-              KATTA QURILISH OBYEKTLARI UCHUN
+              {t('heroBadge2')}
             </span>
 
             <h3 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
-              To'g'ridan-to'g'ri Zavod Narxlarida Schet-Faktura Oling
+              {t('heroTitle2')}
             </h3>
 
             <p className="text-sm text-slate-300 leading-relaxed">
-              Biz O'zbekiston bo'ylab 500 dan ortiq qurilish kompaniyalari, prorablar va do'konlarga kabellar, shchitlar hamda LUX VOLT uskunalarini ulgurji ta'minlab beramiz.
+              {t('heroDesc2')}
             </p>
 
             <div className="pt-2 flex flex-wrap items-center gap-4">
@@ -557,7 +557,7 @@ export default function HomePage() {
                 className="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2 active:scale-95"
               >
                 <PhoneCall className="w-4 h-4" />
-                <span>+998 90 123-45-67 (Optom)</span>
+                <span>+998 90 123-45-67 ({t('wholesalePriceLabel')})</span>
               </a>
 
               <a
@@ -567,7 +567,7 @@ export default function HomePage() {
                 className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold text-sm border border-white/20 transition-all flex items-center gap-2"
               >
                 <Send className="w-4 h-4 text-sky-400" />
-                <span>Telegram orqali Prays-list</span>
+                <span>{t('telegramChannel')}</span>
               </a>
             </div>
           </div>
@@ -602,14 +602,14 @@ export default function HomePage() {
         onOpenDetail={(p) => setDetailProduct(p)}
       />
 
-      {/* Checkout Modal with Telegram Bot integration */}
+      {/* Checkout Modal */}
       <CheckoutModal
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         items={cart}
         onOrderSuccess={(order) => {
           handleClearCart();
-          showToast(`Buyurtma #${order.id} qabul qilindi va Telegram botga yuborildi!`);
+          showToast(`#${order.id} ${t('orderSuccessHeader')}`);
         }}
       />
 
@@ -619,7 +619,7 @@ export default function HomePage() {
         product={quickBuyProduct}
         onClose={() => setQuickBuyProduct(null)}
         onSuccess={(order) => {
-          showToast(`Tezkor buyurtma #${order.id} Telegram botga yuborildi!`);
+          showToast(`#${order.id} ${t('quickBuySuccess')}`);
         }}
       />
 

@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { X, Search, Package, Clock, CheckCircle2, Truck, AlertCircle, ShoppingBag } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function TrackOrderModal({ isOpen, onClose }) {
+  const { t } = useLanguage();
   const [orderId, setOrderId] = useState('');
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState(null);
@@ -21,7 +23,6 @@ export default function TrackOrderModal({ isOpen, onClose }) {
     setOrder(null);
 
     try {
-      // Allow searching by raw number e.g. "984210" or "ORD-984210"
       const formattedId = cleanId.toUpperCase().startsWith('ORD-') ? cleanId.toUpperCase() : `ORD-${cleanId}`;
       const res = await fetch(`/api/orders/${formattedId}`, { cache: 'no-store' });
       const data = await res.json();
@@ -29,10 +30,10 @@ export default function TrackOrderModal({ isOpen, onClose }) {
       if (res.ok && data && data.id) {
         setOrder(data);
       } else {
-        setError("Ushbu raqamli buyurtma topilmadi. Raqamni to'g'ri kiritganingizni tekshiring.");
+        setError(t('trackNotFound'));
       }
     } catch (err) {
-      setError("Server bilan aloqa xatosi yuz berdi.");
+      setError(t('trackNotFound'));
     } finally {
       setLoading(false);
     }
@@ -75,8 +76,8 @@ export default function TrackOrderModal({ isOpen, onClose }) {
               <Package className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-black text-slate-900 text-lg">Buyurtma Holatini Tekshirish</h3>
-              <p className="text-xs text-slate-500">Buyurtma raqamini kiriting va holatini bilib oling</p>
+              <h3 className="font-black text-slate-900 text-lg">{t('trackOrderTitle')}</h3>
+              <p className="text-xs text-slate-500">{t('trackOrderDesc')}</p>
             </div>
           </div>
 
@@ -94,7 +95,7 @@ export default function TrackOrderModal({ isOpen, onClose }) {
               required
               value={orderId}
               onChange={(e) => setOrderId(e.target.value)}
-              placeholder="Masalan: ORD-984210 yoki 984210"
+              placeholder={t('trackInputPlaceholder')}
               className="w-full pl-10 pr-24 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -102,7 +103,7 @@ export default function TrackOrderModal({ isOpen, onClose }) {
               disabled={loading}
               className="absolute right-1.5 top-1.5 bottom-1.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold transition-all"
             >
-              {loading ? "Qidirilmoqda..." : "Tekshirish"}
+              {loading ? "..." : t('trackSearchBtn')}
             </button>
           </div>
         </form>
@@ -121,22 +122,22 @@ export default function TrackOrderModal({ isOpen, onClose }) {
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-4">
               <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Buyurtma raqami:</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t('orderNumberPrefix')}</span>
                   <p className="font-mono font-black text-slate-900 text-base">#{order.id}</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Jami to'lov:</span>
-                  <p className="font-black text-blue-600 text-base">{Number(order.totalAmount).toLocaleString('uz-UZ')} so'm</p>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t('totalLabel')}</span>
+                  <p className="font-black text-blue-600 text-base">{Number(order.totalAmount).toLocaleString('uz-UZ')} {t('som')}</p>
                 </div>
               </div>
 
               {/* Progress Steps */}
               <div className="grid grid-cols-4 gap-2 text-center pt-1">
                 {[
-                  { step: 1, label: "Yuborildi", icon: ShoppingBag },
-                  { step: 2, label: "Qabul qilindi", icon: Clock },
-                  { step: 3, label: "Yetkazilmoqda", icon: Truck },
-                  { step: 4, label: "Yetkazildi", icon: CheckCircle2 }
+                  { step: 1, label: t('trackStepSent'), icon: ShoppingBag },
+                  { step: 2, label: t('trackStepAccepted'), icon: Clock },
+                  { step: 3, label: t('trackStepDelivering'), icon: Truck },
+                  { step: 4, label: t('trackStepDelivered'), icon: CheckCircle2 }
                 ].map(({ step, label, icon: Icon }) => {
                   const status = getStepStatus(step);
                   const isDone = status === 'completed';
@@ -167,28 +168,28 @@ export default function TrackOrderModal({ isOpen, onClose }) {
             {/* Customer & Address Details */}
             <div className="bg-white rounded-xl border border-slate-100 p-3 text-xs space-y-2">
               <div className="flex justify-between">
-                <span className="text-slate-400">Qabul qiluvchi:</span>
+                <span className="text-slate-400">{t('fullName')}:</span>
                 <strong className="text-slate-800">{order.customerName}</strong>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Telefon:</span>
+                <span className="text-slate-400">{t('yourPhone')}:</span>
                 <strong className="text-slate-800 font-mono">{order.phone}</strong>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Manzil:</span>
+                <span className="text-slate-400">{t('exactAddress')}:</span>
                 <strong className="text-slate-800">{order.city}, {order.address}</strong>
               </div>
             </div>
 
             {/* Items summary */}
             <div className="space-y-2">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Buyurtmadagi mahsulotlar:</span>
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t('trackOrderItems')}</span>
               <div className="max-h-36 overflow-y-auto space-y-1.5 pr-1">
                 {(order.items || []).map((item, idx) => (
                   <div key={idx} className="p-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs">
                     <span className="font-semibold text-slate-800 truncate mr-2">{item.name}</span>
                     <span className="text-slate-500 font-bold whitespace-nowrap">
-                      {item.quantity} {item.unit || 'dona'} × {Number(item.price).toLocaleString('uz-UZ')}
+                      {item.quantity} {item.unit || 'dona'} × {Number(item.price).toLocaleString('uz-UZ')} {t('som')}
                     </span>
                   </div>
                 ))}

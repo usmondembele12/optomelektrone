@@ -13,9 +13,9 @@ import {
   Phone, 
   MapPin, 
   User, 
-  FileText,
   AlertCircle
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function CheckoutModal({
   isOpen,
@@ -23,6 +23,7 @@ export default function CheckoutModal({
   items = [],
   onOrderSuccess
 }) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     customerName: '',
     phone: '+998 ',
@@ -52,11 +53,11 @@ export default function CheckoutModal({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.customerName.trim()) {
-      setError("Iltimos, ismingizni kiriting!");
+      setError(t('fullNamePlaceholder'));
       return;
     }
     if (formData.phone.trim().length < 13) {
-      setError("Iltimos, to'liq telefon raqamingizni kiriting!");
+      setError(t('phonePlaceholder'));
       return;
     }
 
@@ -98,11 +99,11 @@ export default function CheckoutModal({
         setSuccessOrder(data.order);
         if (onOrderSuccess) onOrderSuccess(data.order);
       } else {
-        setError(data.error || "Buyurtma yuborishda xatolik yuz berdi");
+        setError(data.error || "Xatolik yuz berdi");
       }
     } catch (err) {
       console.error(err);
-      setError("Server bilan bog'lanishda xatolik. Qaytadan urinib ko'ring.");
+      setError("Server bilan aloqa xatosi");
     } finally {
       setLoading(false);
     }
@@ -132,42 +133,42 @@ export default function CheckoutModal({
 
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
-                Muvaffaqiyatli qabul qilindi
+                {t('trackStepAccepted')}
               </span>
               <h3 className="text-2xl font-black text-slate-900 mt-2">
-                Rahmat! Buyurtmangiz rasmiylashtirildi
+                {t('orderSuccessHeader')}
               </h3>
               <p className="text-sm text-slate-500 mt-1">
-                Buyurtma raqami: <strong className="text-blue-600 font-mono text-base">#{successOrder.id}</strong>
+                {t('orderNumberPrefix')} <strong className="text-blue-600 font-mono text-base">#{successOrder.id}</strong>
               </p>
             </div>
 
-            {/* Telegram confirmation notification banner */}
+            {/* Telegram notification banner */}
             <div className="bg-sky-50 border border-sky-200 text-sky-800 rounded-2xl p-4 text-xs text-left flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-sky-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
                 <Send className="w-4 h-4" />
               </div>
               <div className="space-y-1">
-                <p className="font-bold text-sky-900">Telegram Botga Xabar Yuborildi</p>
+                <p className="font-bold text-sky-900">{t('telegramChannel')}</p>
                 <p className="text-sky-700 leading-relaxed">
-                  Buyurtma tafsilotlari darhol do'kon operatorlari va omborxona mas'ullariga yetkazildi. 10 daqiqa ichida siz bilan bog'lanamiz!
+                  {t('orderSuccessNotification')}
                 </p>
               </div>
             </div>
 
             <div className="bg-slate-50 rounded-2xl p-4 text-left text-xs space-y-2 border border-slate-100">
               <div className="flex justify-between">
-                <span className="text-slate-500">Qabul qiluvchi:</span>
+                <span className="text-slate-500">{t('fullName')}:</span>
                 <strong className="text-slate-800">{successOrder.customerName}</strong>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Telefon:</span>
+                <span className="text-slate-500">{t('yourPhone')}:</span>
                 <strong className="text-slate-800 font-mono">{successOrder.phone}</strong>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Jami to'lov:</span>
+                <span className="text-slate-500">{t('totalLabel')}</span>
                 <strong className="text-blue-600 font-bold text-sm">
-                  {Number(successOrder.totalAmount).toLocaleString('uz-UZ')} so'm
+                  {Number(successOrder.totalAmount).toLocaleString('uz-UZ')} {t('som')}
                 </strong>
               </div>
             </div>
@@ -176,7 +177,7 @@ export default function CheckoutModal({
               onClick={handleClose}
               className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-600/25 transition-all"
             >
-              Tushunarli, Davom etish
+              {t('closeBtn')}
             </button>
           </div>
         ) : (
@@ -185,10 +186,10 @@ export default function CheckoutModal({
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
                 <h3 className="text-xl font-black text-slate-900 tracking-tight">
-                  Buyurtmani Rasmiylashtirish
+                  {t('checkoutTitle')}
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Ma'lumotlaringizni kiriting va buyurtmani tasdiqlang
+                  {t('checkoutCustomerInfo')}
                 </p>
               </div>
               <button
@@ -210,7 +211,7 @@ export default function CheckoutModal({
               {/* Customer Name */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Ismingiz va Familiyangiz *
+                  {t('fullName')} *
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
@@ -219,7 +220,7 @@ export default function CheckoutModal({
                     required
                     value={formData.customerName}
                     onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-                    placeholder="Masalan: Aziz Rahimov"
+                    placeholder={t('fullNamePlaceholder')}
                     className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                   />
                 </div>
@@ -228,7 +229,7 @@ export default function CheckoutModal({
               {/* Phone */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Telefon Raqamingiz *
+                  {t('yourPhone')} *
                 </label>
                 <div className="relative">
                   <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
@@ -237,7 +238,7 @@ export default function CheckoutModal({
                     required
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+998 90 123 45 67"
+                    placeholder={t('phonePlaceholder')}
                     className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                   />
                 </div>
@@ -247,7 +248,7 @@ export default function CheckoutModal({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Shahar / Viloyat *
+                    {t('selectCity')} *
                   </label>
                   <select
                     value={formData.city}
@@ -263,13 +264,13 @@ export default function CheckoutModal({
                     <option value="Namangan">Namangan</option>
                     <option value="Qarshi">Qashqadaryo (Qarshi)</option>
                     <option value="Navoiy">Navoiy</option>
-                    <option value="Xorazm">Xorazm (Urganch)</option>
+                    <option value="Xorazm">Xorazm</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Yetkazish Manzili *
+                    {t('exactAddress')} *
                   </label>
                   <div className="relative">
                     <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
@@ -278,7 +279,7 @@ export default function CheckoutModal({
                       required={formData.deliveryMethod === 'yetkazib_berish'}
                       value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      placeholder="Tuman, ko'cha, uy raqami"
+                      placeholder={t('exactAddressPlaceholder')}
                       className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                     />
                   </div>
@@ -288,7 +289,7 @@ export default function CheckoutModal({
               {/* Delivery Method */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Yetkazib Berish Usuli
+                  {t('deliveryMethodTitle')}
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
@@ -302,8 +303,7 @@ export default function CheckoutModal({
                   >
                     <Truck className="w-5 h-5 text-blue-600 flex-shrink-0" />
                     <div className="text-xs">
-                      <p>Kuryer orqali</p>
-                      <span className="text-[10px] text-slate-400 font-normal">Manzilga tezkor</span>
+                      <p>{t('deliveryCourier')}</p>
                     </div>
                   </button>
 
@@ -318,8 +318,7 @@ export default function CheckoutModal({
                   >
                     <Store className="w-5 h-5 text-blue-600 flex-shrink-0" />
                     <div className="text-xs">
-                      <p>Olib ketish</p>
-                      <span className="text-[10px] text-slate-400 font-normal">O'rikzor do'konimizdan</span>
+                      <p>{t('deliveryPickup')}</p>
                     </div>
                   </button>
                 </div>
@@ -328,7 +327,7 @@ export default function CheckoutModal({
               {/* Payment Method */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  To'lov Turi
+                  {t('paymentMethodTitle')}
                 </label>
                 <div className="grid grid-cols-3 gap-2.5 text-xs">
                   <button
@@ -341,7 +340,7 @@ export default function CheckoutModal({
                     }`}
                   >
                     <Banknote className="w-4 h-4 text-emerald-600" />
-                    <span>Naqd pul</span>
+                    <span>{t('paymentCash')}</span>
                   </button>
 
                   <button
@@ -354,7 +353,7 @@ export default function CheckoutModal({
                     }`}
                   >
                     <CreditCard className="w-4 h-4 text-blue-600" />
-                    <span>Plastik karta</span>
+                    <span>{t('paymentCard')}</span>
                   </button>
 
                   <button
@@ -367,7 +366,7 @@ export default function CheckoutModal({
                     }`}
                   >
                     <Building2 className="w-4 h-4 text-purple-600" />
-                    <span>Bank hisob (Optom)</span>
+                    <span>{t('paymentTransfer')}</span>
                   </button>
                 </div>
               </div>
@@ -375,13 +374,13 @@ export default function CheckoutModal({
               {/* Notes */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Qo'shimcha Izoh (Ixtiyoriy)
+                  {t('customerNotes')}
                 </label>
                 <textarea
                   rows="2"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Masalan: Soat 15:00 dan keyin yetkazing yoki schet-faktura tayyorlang"
+                  placeholder={t('customerNotesPlaceholder')}
                   className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none"
                 />
               </div>
@@ -389,9 +388,9 @@ export default function CheckoutModal({
               {/* Total Summary */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                 <div>
-                  <span className="text-xs text-slate-500">Jami to'lov:</span>
+                  <span className="text-xs text-slate-500">{t('totalLabel')}</span>
                   <p className="text-xl font-black text-slate-900">
-                    {Number(totalAmount).toLocaleString('uz-UZ')} so'm
+                    {Number(totalAmount).toLocaleString('uz-UZ')} {t('som')}
                   </p>
                 </div>
 
@@ -401,7 +400,7 @@ export default function CheckoutModal({
                   className="px-7 py-3.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-600/25 transition-all flex items-center gap-2 active:scale-95"
                 >
                   <Send className="w-4 h-4" />
-                  <span>{loading ? "Yuborilmoqda..." : "Buyurtmani Tasdiqlash"}</span>
+                  <span>{loading ? t('orderSubmitting') : t('confirmAndSend')}</span>
                 </button>
               </div>
             </form>
@@ -412,4 +411,3 @@ export default function CheckoutModal({
     </div>
   );
 }
-

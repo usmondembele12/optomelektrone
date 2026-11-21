@@ -9,34 +9,35 @@ import {
   Percent, 
   Headphones, 
   ArrowRight,
-  Zap,
-  CheckCircle2
+  Zap
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function HeroSlider({ onSelectBrand, onScrollToProducts }) {
+  const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
     {
       id: 1,
-      badge: "RASMIY DISTRIBYUTOR",
+      badge: t('heroBadge1'),
       badgeColor: "bg-blue-600 text-white",
-      title: "LUX VOLT ELEKTR MAHSULOTLARI",
-      highlight: "Birinchi Qo'ldan Optom Narxda",
-      description: "Avtomat uzgichlar, metall va germetik boks shchitlar, sanoat kontaktorlari hamda yuqori yorug'likka ega LED projektorlar.",
+      title: t('heroTitle1'),
+      highlight: t('heroHighlight1'),
+      description: t('heroDesc1'),
       image: "/images/banner.png",
-      cta: "LUX VOLT Katalogi",
+      cta: t('heroCta1'),
       action: () => onSelectBrand('LUX VOLT')
     },
     {
       id: 2,
-      badge: "QURILISH VA USTALAR UCHUN",
+      badge: t('heroBadge2'),
       badgeColor: "bg-amber-500 text-slate-900",
-      title: "KATTA OBYEKTLAR UCHUN UL GURJI TA'MINOT",
-      highlight: "-15% gacha Maxsus Chegirma",
-      description: "Andijon Kabel, Schneider Electric, CHINT, ZUBR va IEK mahsulotlari. QQS bilan to'lov va O'zbekiston bo'ylab yetkazib berish.",
+      title: t('heroTitle2'),
+      highlight: t('heroHighlight2'),
+      description: t('heroDesc2'),
       image: "/images/banner_optom.png",
-      cta: "Optom Takliflarni Ko'rish",
+      cta: t('heroCta2'),
       action: onScrollToProducts
     }
   ];
@@ -99,7 +100,7 @@ export default function HeroSlider({ onSelectBrand, onScrollToProducts }) {
                   href="tel:+998712000000"
                   className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold text-sm border border-white/20 transition-all"
                 >
-                  Optom Narx Olish
+                  {t('getWholesalePrice')}
                 </a>
               </div>
             </div>
@@ -136,7 +137,7 @@ export default function HeroSlider({ onSelectBrand, onScrollToProducts }) {
         </div>
       </div>
 
-      {/* 2. SODDA.UZ STYLE 4 VALUE PROPOSITIONS */}
+      {/* 2. VALUE PROPOSITIONS */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1 */}
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4 hover:border-blue-400 hover:shadow-md transition-all group">
@@ -144,8 +145,8 @@ export default function HeroSlider({ onSelectBrand, onScrollToProducts }) {
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-slate-900">100% Rasmiy Kafolat</h4>
-            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">1 yildan 3 yilgacha sertifikat</p>
+            <h4 className="text-xs sm:text-sm font-bold text-slate-900">{t('prop1Title')}</h4>
+            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">{t('prop1Desc')}</p>
           </div>
         </div>
 
@@ -155,8 +156,8 @@ export default function HeroSlider({ onSelectBrand, onScrollToProducts }) {
             <Truck className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-slate-900">Tezkor Yetkazib Berish</h4>
-            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">Toshkentda 3 soatda</p>
+            <h4 className="text-xs sm:text-sm font-bold text-slate-900">{t('prop2Title')}</h4>
+            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">{t('prop2Desc')}</p>
           </div>
         </div>
 
@@ -166,8 +167,8 @@ export default function HeroSlider({ onSelectBrand, onScrollToProducts }) {
             <Percent className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-slate-900">Optom Arzon Narxlar</h4>
-            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">To'g'ridan-to'g'ri zavoddan</p>
+            <h4 className="text-xs sm:text-sm font-bold text-slate-900">{t('prop3Title')}</h4>
+            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">{t('prop3Desc')}</p>
           </div>
         </div>
 
@@ -177,12 +178,11 @@ export default function HeroSlider({ onSelectBrand, onScrollToProducts }) {
             <Headphones className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-slate-900">Muhandis Maslahati</h4>
-            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">Usta va prorablarga bepul</p>
+            <h4 className="text-xs sm:text-sm font-bold text-slate-900">{t('prop4Title')}</h4>
+            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">{t('prop4Desc')}</p>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
