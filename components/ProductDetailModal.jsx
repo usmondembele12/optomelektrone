@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { X, ShoppingCart, Zap, Sparkles, Send } from 'lucide-react';
+import { X, ShoppingCart, Zap, Sparkles, Send, Phone } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function ProductDetailModal({
@@ -197,15 +197,26 @@ export default function ProductDetailModal({
                 </button>
               </div>
 
-              {/* Share to Telegram button */}
-              <button
-                type="button"
-                onClick={handleShareTelegram}
-                className="w-full py-2 bg-slate-50 hover:bg-sky-50 border border-slate-200 hover:border-sky-300 text-slate-600 hover:text-sky-700 font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-2"
-              >
-                <Send className="w-3.5 h-3.5 text-sky-500" />
-                <span>{t('shareTelegramBtn')}</span>
-              </button>
+              {/* Direct Call & Telegram Buttons */}
+              <div className="flex items-center gap-2 pt-1">
+                <a
+                  href="tel:+998950090909"
+                  className="flex-1 py-2 px-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-[11px] rounded-xl transition-all flex items-center justify-center gap-1.5"
+                  title="Do'konga to'g'ridan-to'g'ri qo'ng'iroq qilish"
+                >
+                  <Phone className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+                  <span>Qo'ng'iroq: +998 95 009-09-09</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={handleShareTelegram}
+                  className="py-2 px-3 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 font-bold text-[11px] rounded-xl transition-all flex items-center justify-center gap-1.5"
+                  title="Telegram orqali do'stlarga yuborish"
+                >
+                  <Send className="w-3.5 h-3.5 text-sky-500" />
+                  <span>Telegram</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

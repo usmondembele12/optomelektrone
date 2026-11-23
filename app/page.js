@@ -12,6 +12,7 @@ import ProductDetailModal from '../components/ProductDetailModal';
 import CategoryDrawer from '../components/CategoryDrawer';
 import FavoritesDrawer from '../components/FavoritesDrawer';
 import TrackOrderModal from '../components/TrackOrderModal';
+import PhoneCallModal from '../components/PhoneCallModal';
 import FloatingContactBar from '../components/FloatingContactBar';
 import Footer from '../components/Footer';
 import { useLanguage } from '../context/LanguageContext';
@@ -48,6 +49,7 @@ export default function HomePage() {
   const [isTrackOrderOpen, setIsTrackOrderOpen] = useState(false);
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   
   const [quickBuyProduct, setQuickBuyProduct] = useState(null);
@@ -381,6 +383,7 @@ export default function HomePage() {
           setSelectedBrand(brandName);
           scrollToProducts();
         }}
+        onOpenCallModal={() => setIsCallModalOpen(true)}
       />
 
       {/* 2. MAIN STOREFRONT CONTENT */}
@@ -393,6 +396,7 @@ export default function HomePage() {
             scrollToProducts();
           }}
           onScrollToProducts={scrollToProducts}
+          onOpenCallModal={() => setIsCallModalOpen(true)}
         />
 
         {/* CATEGORY GRID */}
@@ -560,13 +564,13 @@ export default function HomePage() {
             </p>
 
             <div className="pt-2 flex flex-wrap items-center gap-4">
-              <a
-                href="tel:+998974474747"
-                className="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2 active:scale-95"
+              <button
+                onClick={() => setIsCallModalOpen(true)}
+                className="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2 active:scale-95 cursor-pointer"
               >
-                <PhoneCall className="w-4 h-4" />
+                <PhoneCall className="w-4 h-4 animate-pulse" />
                 <span>+998 97 447-47-47 ({t('wholesalePriceLabel')})</span>
-              </a>
+              </button>
 
               <a
                 href="https://t.me/optomelektro"
@@ -589,6 +593,7 @@ export default function HomePage() {
           setSelectedCategory(catId);
           scrollToProducts();
         }}
+        onOpenCallModal={() => setIsCallModalOpen(true)}
       />
 
       {/* ==================== MODALS ==================== */}
@@ -670,8 +675,16 @@ export default function HomePage() {
         onClose={() => setIsTrackOrderOpen(false)}
       />
 
+      {/* Direct Phone Call & Contact Center Modal */}
+      <PhoneCallModal
+        isOpen={isCallModalOpen}
+        onClose={() => setIsCallModalOpen(false)}
+      />
+
       {/* Floating Call & Telegram Contact Buttons */}
-      <FloatingContactBar />
+      <FloatingContactBar 
+        onOpenCallModal={() => setIsCallModalOpen(true)}
+      />
 
       {/* Floating Toast Notification */}
       {toast && (

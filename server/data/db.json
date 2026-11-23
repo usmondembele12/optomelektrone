@@ -2127,6 +2127,13 @@
     "telegramBotToken": "9284355717:AAF8eLuWBibzGe6Oq4en1PbgiZ5ogHguYao",
     "telegramChatId": "8038275900",
     "adminUsername": "foden",
-    "adminPassword": "usmon47"
+    "adminPassword": "usmon47",
+    "storeName": "OPTOM elektro",
+    "storePhone": "+998 95 009-09-09",
+    "storePhoneSecondary": "+998 97 447-47-47",
+    "storePhoneManager": "+998 98 111-70-70",
+    "storeAddress": "Toshkent sh., Chuqursoy Savdo Markazi, 1-183 do'kon (Jomiy bozori)",
+    "storeTagline": "LUX VOLT, ELEBOX va GIP elektrotexnika mahsulotlarining rasmiy ulgurji va chakana savdo markazi",
+    "storeTelegram": "https://t.me/optomelektro"
   }
 }

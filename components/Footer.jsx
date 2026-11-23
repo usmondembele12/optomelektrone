@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Phone, MapPin, Clock, Send, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function Footer({ onSelectCategory }) {
+export default function Footer({ onSelectCategory, onOpenCallModal }) {
   const { t } = useLanguage();
 
   return (
@@ -38,13 +38,13 @@ export default function Footer({ onSelectCategory }) {
               >
                 <Send className="w-4 h-4" />
               </a>
-              <a 
-                href="tel:+998950090909" 
-                className="w-9 h-9 rounded-xl bg-slate-900 hover:bg-blue-600 hover:text-white flex items-center justify-center text-blue-400 border border-slate-800 transition-colors"
+              <button 
+                onClick={onOpenCallModal}
+                className="w-9 h-9 rounded-xl bg-slate-900 hover:bg-emerald-600 hover:text-white flex items-center justify-center text-emerald-400 border border-slate-800 transition-colors"
                 title={t('callDirect')}
               >
                 <Phone className="w-4 h-4" />
-              </a>
+              </button>
             </div>
           </div>
 
@@ -80,9 +80,19 @@ export default function Footer({ onSelectCategory }) {
                 <MapPin className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
                 <span>{t('footerAddress')}</span>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                <a href="tel:+998950090909" className="hover:text-white font-mono font-bold text-slate-200">+998 95 009-09-09</a>
+              <li className="flex flex-col gap-1.5 pt-1">
+                <a href="tel:+998950090909" className="hover:text-emerald-400 font-mono font-bold text-slate-200 flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>+998 95 009-09-09 <span className="text-[10px] text-slate-400 font-sans font-normal">(Do'kon)</span></span>
+                </a>
+                <a href="tel:+998974474747" className="hover:text-amber-400 font-mono font-bold text-slate-200 flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-amber-400" />
+                  <span>+998 97 447-47-47 <span className="text-[10px] text-slate-400 font-sans font-normal">(Optom)</span></span>
+                </a>
+                <a href="tel:+998981117070" className="hover:text-purple-400 font-mono font-bold text-slate-200 flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-purple-400" />
+                  <span>+998 98 111-70-70 <span className="text-[10px] text-slate-400 font-sans font-normal">(Menejer)</span></span>
+                </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-blue-400 flex-shrink-0" />

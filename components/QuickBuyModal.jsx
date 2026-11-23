@@ -102,12 +102,21 @@ export default function QuickBuyModal({
             <p className="text-xs text-slate-500">
               {t('orderSuccessNotification')}
             </p>
-            <button
-              onClick={handleClose}
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs"
-            >
-              {t('closeBtn')}
-            </button>
+            <div className="pt-2 flex flex-col gap-2">
+              <a
+                href="tel:+998950090909"
+                className="w-full py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all"
+              >
+                <Phone className="w-4 h-4 text-emerald-600 animate-pulse" />
+                <span>Tezkor bog'lanish: +998 95 009-09-09</span>
+              </a>
+              <button
+                onClick={handleClose}
+                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition-colors"
+              >
+                {t('closeBtn')}
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">

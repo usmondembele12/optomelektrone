@@ -9,11 +9,12 @@ import {
   Percent, 
   Headphones, 
   ArrowRight,
-  Zap
+  Zap,
+  Phone
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function HeroSlider({ onSelectBrand, onScrollToProducts }) {
+export default function HeroSlider({ onSelectBrand, onScrollToProducts, onOpenCallModal }) {
   const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -96,12 +97,13 @@ export default function HeroSlider({ onSelectBrand, onScrollToProducts }) {
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
 
-                <a
-                  href="tel:+998950090909"
-                  className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold text-sm border border-white/20 transition-all"
+                <button
+                  onClick={onOpenCallModal ? onOpenCallModal : () => { if (typeof window !== 'undefined') window.location.href = "tel:+998950090909"; }}
+                  className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold text-sm border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
                 >
-                  {t('getWholesalePrice')}
-                </a>
+                  <Phone className="w-4 h-4 text-emerald-400" />
+                  <span>{t('getWholesalePrice')}</span>
+                </button>
               </div>
             </div>
           </div>

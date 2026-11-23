@@ -33,7 +33,8 @@ export default function Header({
   products = [],
   onSelectProduct,
   onSelectCategory,
-  onSelectBrand
+  onSelectBrand,
+  onOpenCallModal
 }) {
   const { lang, setLang, t, getLocalized, languages, currentLangObj } = useLanguage();
   const [selectedCity, setSelectedCity] = useState("Toshkent");
@@ -96,17 +97,34 @@ export default function Header({
             {/* Direct Phone */}
             <a 
               href="tel:+998950090909" 
-              className="flex items-center gap-1.5 hover:text-white transition-colors font-bold text-white tracking-wide"
+              onClick={(e) => {
+                if (onOpenCallModal) {
+                  e.preventDefault();
+                  onOpenCallModal();
+                }
+              }}
+              className="flex items-center gap-1.5 hover:text-white transition-colors font-bold text-white tracking-wide cursor-pointer"
+              title={`${t('callDirect')} +998 95 009-09-09`}
             >
-              <Phone className="w-3.5 h-3.5 text-blue-400" />
+              <Phone className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
               <span className="hidden xs:inline">+998 95 009-09-09</span>
             </a>
 
             {/* Wholesale line */}
-            <div className="hidden lg:flex items-center gap-1.5 text-amber-400 font-medium">
+            <a 
+              href="tel:+998974474747"
+              onClick={(e) => {
+                if (onOpenCallModal) {
+                  e.preventDefault();
+                  onOpenCallModal();
+                }
+              }}
+              className="hidden lg:flex items-center gap-1.5 text-amber-400 hover:text-amber-300 font-medium cursor-pointer transition-colors"
+              title="Ulgurji ta'minot bo'limi"
+            >
               <Zap className="w-3.5 h-3.5 text-amber-400" />
               <span>{t('wholesaleSupport')} <strong>+998 97 447-47-47</strong></span>
-            </div>
+            </a>
 
             {/* Telegram Channel */}
             <a 

@@ -2044,9 +2044,11 @@ const INITIAL_PRODUCTS = [
 
 const INITIAL_SETTINGS = {
   storeName: 'OPTOM elektro',
-  storeTagline: 'Elektr jihozlari va kabellarning ulgurji va chakana savdo markazi',
-  storePhone: '+998 71 200-00-00',
-  storeAddress: "Toshkent sh., Chilonzor tumani, O'rikzor ulgurji bozori, 4-blok 18-do'kon",
+  storeTagline: 'LUX VOLT, ELEBOX va GIP elektrotexnika mahsulotlarining rasmiy ulgurji va chakana savdo markazi',
+  storePhone: '+998 95 009-09-09',
+  storePhoneSecondary: '+998 97 447-47-47',
+  storePhoneManager: '+998 98 111-70-70',
+  storeAddress: "Toshkent sh., Chuqursoy Savdo Markazi, 1-183 do'kon (Jomiy bozori)",
   storeTelegram: 'https://t.me/optomelektro',
   telegramBotToken: '9284355717:AAF8eLuWBibzGe6Oq4en1PbgiZ5ogHguYao',
   telegramChatId: '8038275900',
