@@ -7,15 +7,29 @@ try {
 } catch (e) {}
 
 const isVercel = !!process.env.VERCEL;
-const DB_DIR = isVercel ? '/tmp' : path.join(__dirname, 'data');
-const DB_FILE = path.join(DB_DIR, 'db.json');
+
+function getDbPaths() {
+  if (isVercel) {
+    return {
+      dir: '/tmp',
+      file: '/tmp/db.json'
+    };
+  }
+  const realFile = path.join(process.cwd(), 'server', 'data', 'db.json');
+  return {
+    dir: path.dirname(realFile),
+    file: realFile
+  };
+}
+
+const { dir: DB_DIR, file: DB_FILE } = getDbPaths();
 
 function resolveSeedFilePath() {
   const seedInCwd = path.join(process.cwd(), 'server', 'data', 'db.json');
   try {
     if (fs.existsSync(seedInCwd)) return seedInCwd;
   } catch (_) {}
-  return path.join(__dirname, 'data', 'db.json');
+  return DB_FILE;
 }
 
 const SEED_FILE = resolveSeedFilePath();
