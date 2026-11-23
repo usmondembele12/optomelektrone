@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Phone, MapPin, Clock, Send, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function Footer() {
+export default function Footer({ onSelectCategory }) {
   const { t } = useLanguage();
 
   return (
@@ -39,7 +39,7 @@ export default function Footer() {
                 <Send className="w-4 h-4" />
               </a>
               <a 
-                href="tel:+998712000000" 
+                href="tel:+998950090909" 
                 className="w-9 h-9 rounded-xl bg-slate-900 hover:bg-blue-600 hover:text-white flex items-center justify-center text-blue-400 border border-slate-800 transition-colors"
                 title={t('callDirect')}
               >
@@ -52,12 +52,12 @@ export default function Footer() {
           <div className="space-y-3">
             <h4 className="text-sm font-bold text-white uppercase tracking-wider">{t('footerPopularCatsTitle')}</h4>
             <ul className="space-y-2">
-              <li><a href="#avtomatlar" className="hover:text-white transition-colors">{t('cat_avtomatlar')}</a></li>
-              <li><a href="#kabellar" className="hover:text-white transition-colors">{t('cat_kabellar')}</a></li>
-              <li><a href="#shchitlar" className="hover:text-white transition-colors">{t('cat_shchitlar')}</a></li>
-              <li><a href="#kontaktorlar" className="hover:text-white transition-colors">{t('cat_kontaktorlar')}</a></li>
-              <li><a href="#led-yoritish" className="hover:text-white transition-colors">{t('cat_led_yoritish')}</a></li>
-              <li><a href="#stabilizatorlar" className="hover:text-white transition-colors">{t('cat_stabilizatorlar')}</a></li>
+              <li><button onClick={() => onSelectCategory && onSelectCategory('avtomatlar')} className="hover:text-white transition-colors text-left">{t('cat_avtomatlar')}</button></li>
+              <li><button onClick={() => onSelectCategory && onSelectCategory('shchitlar')} className="hover:text-white transition-colors text-left">{t('cat_shchitlar')}</button></li>
+              <li><button onClick={() => onSelectCategory && onSelectCategory('rele-himoya')} className="hover:text-white transition-colors text-left">{t('cat_rele_himoya')}</button></li>
+              <li><button onClick={() => onSelectCategory && onSelectCategory('shinalar')} className="hover:text-white transition-colors text-left">{t('cat_shinalar')}</button></li>
+              <li><button onClick={() => onSelectCategory && onSelectCategory('klemma-ulash')} className="hover:text-white transition-colors text-left">{t('cat_klemma_ulash')}</button></li>
+              <li><button onClick={() => onSelectCategory && onSelectCategory('ventilyatsiya')} className="hover:text-white transition-colors text-left">{t('cat_ventilyatsiya')}</button></li>
             </ul>
           </div>
 
@@ -82,7 +82,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                <a href="tel:+998712000000" className="hover:text-white font-mono font-bold text-slate-200">+998 71 200-00-00</a>
+                <a href="tel:+998950090909" className="hover:text-white font-mono font-bold text-slate-200">+998 95 009-09-09</a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-blue-400 flex-shrink-0" />

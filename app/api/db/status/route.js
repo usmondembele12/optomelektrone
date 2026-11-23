@@ -48,7 +48,7 @@ export async function GET() {
     instructions: !prismaConnected ? {
       step1: "O'zingizning PostgreSQL DATABASE_URL ini .env fayliga kiriting (Neon, Supabase yoki mahalliy Postgres)",
       step2: "Jadvallarni yaratish uchun: npm run prisma:push",
-      step3: "37 ta mahsulot va kategoriyalarni bazaga yuklash uchun: npm run prisma:seed",
+      step3: "44 ta rasmiy mahsulot va kategoriyalarni bazaga yuklash uchun: npm run prisma:seed",
     } : undefined
   });
 }

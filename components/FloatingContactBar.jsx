@@ -10,13 +10,13 @@ export default function FloatingContactBar() {
     <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2.5">
       {/* Direct Phone Call Button */}
       <a
-        href="tel:+998712000000"
+        href="tel:+998950090909"
         className="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-xl shadow-emerald-500/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 group relative"
-        title={`${t('callDirect')} +998 71 200-00-00`}
+        title={`${t('callDirect')} +998 95 009-09-09`}
       >
         <Phone className="w-5 h-5 animate-pulse" />
         <span className="hidden group-hover:block absolute right-14 bg-slate-900 text-white text-xs font-bold py-1 px-3 rounded-xl whitespace-nowrap shadow-lg">
-          📞 {t('callDirect')} +998 71 200-00-00
+          📞 {t('callDirect')} +998 95 009-09-09
         </span>
       </a>
 

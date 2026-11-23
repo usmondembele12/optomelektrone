@@ -5,6 +5,10 @@ const path = require('path');
 const prisma = new PrismaClient();
 
 async function main() {
+  if (!process.env.DATABASE_URL) {
+    console.log('[Seed] DATABASE_URL not configured in .env. Skipping Postgres seeding (Local JSON store is active with 44 products).');
+    return;
+  }
   console.log('[Seed] Seeding database from server/data/db.json...');
 
   const dbPath = path.join(__dirname, '..', 'server', 'data', 'db.json');

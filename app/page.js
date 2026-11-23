@@ -298,7 +298,7 @@ export default function HomePage() {
 
   const brandsList = useMemo(() => {
     const list = ['ALL'];
-    const knownBrands = ['LUX VOLT', 'Schneider Electric', 'CHINT', 'Andijon Kabel', "O'z-kabel", 'IEK', 'ZUBR', 'UNI-T'];
+    const knownBrands = ['LUX VOLT', 'ELEBOX', 'GIP', 'HEV', 'Standart'];
     knownBrands.forEach(b => { if (!list.includes(b)) list.push(b); });
     products.forEach(p => {
       if (p.brand && !list.some(b => b.toLowerCase() === p.brand.toLowerCase())) {
@@ -373,6 +373,14 @@ export default function HomePage() {
         onSearchChange={setSearchQuery}
         products={products}
         onSelectProduct={(p) => setDetailProduct(p)}
+        onSelectCategory={(catId) => {
+          setSelectedCategory(catId);
+          scrollToProducts();
+        }}
+        onSelectBrand={(brandName) => {
+          setSelectedBrand(brandName);
+          scrollToProducts();
+        }}
       />
 
       {/* 2. MAIN STOREFRONT CONTENT */}
@@ -553,11 +561,11 @@ export default function HomePage() {
 
             <div className="pt-2 flex flex-wrap items-center gap-4">
               <a
-                href="tel:+998901234567"
+                href="tel:+998974474747"
                 className="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2 active:scale-95"
               >
                 <PhoneCall className="w-4 h-4" />
-                <span>+998 90 123-45-67 ({t('wholesalePriceLabel')})</span>
+                <span>+998 97 447-47-47 ({t('wholesalePriceLabel')})</span>
               </a>
 
               <a
@@ -576,7 +584,12 @@ export default function HomePage() {
       </main>
 
       {/* 5. FOOTER */}
-      <Footer />
+      <Footer 
+        onSelectCategory={(catId) => {
+          setSelectedCategory(catId);
+          scrollToProducts();
+        }}
+      />
 
       {/* ==================== MODALS ==================== */}
 

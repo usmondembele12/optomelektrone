@@ -1,12 +1,18 @@
 "use client";
 
-import { X, Zap, Layers, Shield, Cpu, Activity, Power, Sun, Wrench, ChevronRight } from 'lucide-react';
+import { X, Zap, Layers, Shield, Cpu, Activity, Power, Sun, Wrench, Package, Wind, Gauge, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const iconMap = {
   avtomatlar: Zap,
-  kabellar: Layers,
   shchitlar: Shield,
+  'rele-himoya': Activity,
+  shinalar: Cpu,
+  'klemma-ulash': Package,
+  ventilyatsiya: Wind,
+  'olchov-datchik': Gauge,
+  'montaj-xavfsizlik': Wrench,
+  kabellar: Layers,
   kontaktorlar: Cpu,
   stabilizatorlar: Activity,
   rozetkalar: Power,

@@ -31,7 +31,9 @@ export default function Header({
   searchQuery = '',
   onSearchChange,
   products = [],
-  onSelectProduct
+  onSelectProduct,
+  onSelectCategory,
+  onSelectBrand
 }) {
   const { lang, setLang, t, getLocalized, languages, currentLangObj } = useLanguage();
   const [selectedCity, setSelectedCity] = useState("Toshkent");
@@ -93,17 +95,17 @@ export default function Header({
           <div className="flex items-center gap-3 sm:gap-5">
             {/* Direct Phone */}
             <a 
-              href="tel:+998712000000" 
+              href="tel:+998950090909" 
               className="flex items-center gap-1.5 hover:text-white transition-colors font-bold text-white tracking-wide"
             >
               <Phone className="w-3.5 h-3.5 text-blue-400" />
-              <span className="hidden xs:inline">+998 71 200-00-00</span>
+              <span className="hidden xs:inline">+998 95 009-09-09</span>
             </a>
 
             {/* Wholesale line */}
             <div className="hidden lg:flex items-center gap-1.5 text-amber-400 font-medium">
               <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <span>{t('wholesaleSupport')} <strong>+998 90 123-45-67</strong></span>
+              <span>{t('wholesaleSupport')} <strong>+998 97 447-47-47</strong></span>
             </div>
 
             {/* Telegram Channel */}
@@ -375,18 +377,18 @@ export default function Header({
             <span>{t('allTurkumlar')}</span>
           </button>
           <span className="text-slate-300">|</span>
-          <a href="#avtomatlar" className="hover:text-blue-600 transition-colors">{t('cat_avtomatlar')}</a>
-          <a href="#kabellar" className="hover:text-blue-600 transition-colors">{t('cat_kabellar')}</a>
-          <a href="#shchitlar" className="hover:text-blue-600 transition-colors">{t('cat_shchitlar')}</a>
-          <a href="#kontaktorlar" className="hover:text-blue-600 transition-colors">{t('cat_kontaktorlar')}</a>
-          <a href="#led-yoritish" className="hover:text-blue-600 transition-colors">{t('cat_led_yoritish')}</a>
-          <a href="#stabilizatorlar" className="hover:text-blue-600 transition-colors">{t('cat_stabilizatorlar')}</a>
-          <a href="#rozetkalar" className="hover:text-blue-600 transition-colors">{t('cat_rozetkalar')}</a>
-          <a href="#asboblar" className="hover:text-blue-600 transition-colors">{t('cat_asboblar')}</a>
-          <a href="#luxvolt" className="text-purple-600 font-bold hover:underline flex items-center gap-1">
+          <button onClick={() => onSelectCategory && onSelectCategory('avtomatlar')} className="hover:text-blue-600 transition-colors">{t('cat_avtomatlar')}</button>
+          <button onClick={() => onSelectCategory && onSelectCategory('shchitlar')} className="hover:text-blue-600 transition-colors">{t('cat_shchitlar')}</button>
+          <button onClick={() => onSelectCategory && onSelectCategory('rele-himoya')} className="hover:text-blue-600 transition-colors">{t('cat_rele_himoya')}</button>
+          <button onClick={() => onSelectCategory && onSelectCategory('shinalar')} className="hover:text-blue-600 transition-colors">{t('cat_shinalar')}</button>
+          <button onClick={() => onSelectCategory && onSelectCategory('klemma-ulash')} className="hover:text-blue-600 transition-colors">{t('cat_klemma_ulash')}</button>
+          <button onClick={() => onSelectCategory && onSelectCategory('ventilyatsiya')} className="hover:text-blue-600 transition-colors">{t('cat_ventilyatsiya')}</button>
+          <button onClick={() => onSelectCategory && onSelectCategory('olchov-datchik')} className="hover:text-blue-600 transition-colors">{t('cat_olchov_datchik')}</button>
+          <button onClick={() => onSelectCategory && onSelectCategory('montaj-xavfsizlik')} className="hover:text-blue-600 transition-colors">{t('cat_montaj_xavfsizlik')}</button>
+          <button onClick={() => onSelectBrand && onSelectBrand('LUX VOLT')} className="text-purple-600 font-bold hover:underline flex items-center gap-1">
             <Zap className="w-3 h-3 text-purple-600" />
             <span>{t('luxvoltProducts')}</span>
-          </a>
+          </button>
         </div>
       </div>
     </header>

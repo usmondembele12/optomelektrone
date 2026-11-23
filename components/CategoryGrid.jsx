@@ -8,14 +8,23 @@ import {
   Activity, 
   Power, 
   Sun, 
-  Wrench
+  Wrench,
+  Package,
+  Wind,
+  Gauge
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const iconMap = {
   avtomatlar: Zap,
-  kabellar: Layers,
   shchitlar: Shield,
+  'rele-himoya': Activity,
+  shinalar: Cpu,
+  'klemma-ulash': Package,
+  ventilyatsiya: Wind,
+  'olchov-datchik': Gauge,
+  'montaj-xavfsizlik': Wrench,
+  kabellar: Layers,
   kontaktorlar: Cpu,
   stabilizatorlar: Activity,
   rozetkalar: Power,

@@ -97,7 +97,7 @@ export default function HeroSlider({ onSelectBrand, onScrollToProducts }) {
                 </button>
 
                 <a
-                  href="tel:+998712000000"
+                  href="tel:+998950090909"
                   className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold text-sm border border-white/20 transition-all"
                 >
                   {t('getWholesalePrice')}
