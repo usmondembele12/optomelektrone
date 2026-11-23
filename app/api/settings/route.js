@@ -21,3 +21,13 @@ export async function POST(request) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+export async function PUT(request) {
+  try {
+    const body = await request.json();
+    const updated = db.updateSettings(body);
+    return NextResponse.json(updated);
+  } catch (err) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}

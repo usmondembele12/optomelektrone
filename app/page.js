@@ -609,6 +609,7 @@ export default function HomePage() {
         items={cart}
         onOrderSuccess={(order) => {
           handleClearCart();
+          loadData();
           showToast(`#${order.id} ${t('orderSuccessHeader')}`);
         }}
       />
@@ -619,6 +620,7 @@ export default function HomePage() {
         product={quickBuyProduct}
         onClose={() => setQuickBuyProduct(null)}
         onSuccess={(order) => {
+          loadData();
           showToast(`#${order.id} ${t('quickBuySuccess')}`);
         }}
       />

@@ -1583,7 +1583,20 @@ function getOrders() {
 
 function getOrderById(id) {
   const db = readDb();
-  return db.orders.find(o => String(o.id) === String(id));
+  if (!id) return null;
+  const clean = String(id).trim().toUpperCase();
+  const orders = db.orders || [];
+  const direct = orders.find(o => String(o.id).toUpperCase() === clean);
+  if (direct) return direct;
+  if (!clean.startsWith('ORD-')) {
+    const withPrefix = orders.find(o => String(o.id).toUpperCase() === 'ORD-' + clean);
+    if (withPrefix) return withPrefix;
+  }
+  if (clean.startsWith('ORD-')) {
+    const withoutPrefix = orders.find(o => String(o.id).toUpperCase() === clean.slice(4));
+    if (withoutPrefix) return withoutPrefix;
+  }
+  return null;
 }
 
 function createOrder(orderData) {
@@ -1625,6 +1638,22 @@ function updateOrderStatus(id, status) {
   order.status = status;
   writeDb(db);
   return order;
+}
+
+function deleteOrder(id) {
+  const db = readDb();
+  if (!id) return false;
+  const clean = String(id).trim().toUpperCase();
+  const initialLen = (db.orders || []).length;
+  db.orders = (db.orders || []).filter(o => {
+    const oId = String(o.id).toUpperCase();
+    return oId !== clean && oId !== ('ORD-' + clean) && oId.replace(/^ORD-/, '') !== clean.replace(/^ORD-/, '');
+  });
+  if (db.orders.length !== initialLen) {
+    writeDb(db);
+    return true;
+  }
+  return false;
 }
 
 // Settings
@@ -1683,6 +1712,7 @@ module.exports = {
   getOrderById,
   createOrder,
   updateOrderStatus,
+  deleteOrder,
   getSettings,
   updateSettings,
   getStats

@@ -139,6 +139,16 @@ app.patch('/api/orders/:id/status', (req, res) => {
   }
 });
 
+app.delete('/api/orders/:id', (req, res) => {
+  try {
+    const success = db.deleteOrder(req.params.id);
+    if (!success) return res.status(404).json({ error: 'Buyurtma topilmadi' });
+    res.json({ success: true, message: "Buyurtma o'chirildi" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Authentication
 app.post('/api/auth/login', (req, res) => {
   try {
