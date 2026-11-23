@@ -1,6 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
+let prismaSync = null;
+try {
+  prismaSync = require('./prismaSync');
+} catch (e) {}
+
 const isVercel = !!process.env.VERCEL;
 const DB_DIR = isVercel ? '/tmp' : path.join(__dirname, 'data');
 const DB_FILE = path.join(DB_DIR, 'db.json');
@@ -1539,6 +1544,9 @@ function addProduct(productData) {
   };
   db.products.unshift(newProduct);
   writeDb(db);
+  if (prismaSync) {
+    prismaSync.syncProductToPostgres(newProduct, 'upsert').catch(() => {});
+  }
   return newProduct;
 }
 
@@ -1555,15 +1563,22 @@ function updateProduct(id, updates) {
     stock: updates.stock !== undefined ? Number(updates.stock) : db.products[idx].stock
   };
   writeDb(db);
+  if (prismaSync) {
+    prismaSync.syncProductToPostgres(db.products[idx], 'upsert').catch(() => {});
+  }
   return db.products[idx];
 }
 
 function deleteProduct(id) {
   const db = readDb();
   const initialLen = db.products.length;
+  const toDelete = db.products.find(p => String(p.id) === String(id));
   db.products = db.products.filter(p => String(p.id) !== String(id));
   if (db.products.length !== initialLen) {
     writeDb(db);
+    if (prismaSync && toDelete) {
+      prismaSync.syncProductToPostgres(toDelete, 'delete').catch(() => {});
+    }
     return true;
   }
   return false;
@@ -1628,6 +1643,9 @@ function createOrder(orderData) {
   }
 
   writeDb(db);
+  if (prismaSync) {
+    prismaSync.syncOrderToPostgres(newOrder, 'upsert').catch(() => {});
+  }
   return newOrder;
 }
 
@@ -1637,6 +1655,9 @@ function updateOrderStatus(id, status) {
   if (!order) return null;
   order.status = status;
   writeDb(db);
+  if (prismaSync) {
+    prismaSync.syncOrderToPostgres(order, 'upsert').catch(() => {});
+  }
   return order;
 }
 
@@ -1645,12 +1666,19 @@ function deleteOrder(id) {
   if (!id) return false;
   const clean = String(id).trim().toUpperCase();
   const initialLen = (db.orders || []).length;
+  const toDelete = (db.orders || []).find(o => {
+    const oId = String(o.id).toUpperCase();
+    return oId === clean || oId === ('ORD-' + clean) || oId.replace(/^ORD-/, '') === clean.replace(/^ORD-/, '');
+  });
   db.orders = (db.orders || []).filter(o => {
     const oId = String(o.id).toUpperCase();
     return oId !== clean && oId !== ('ORD-' + clean) && oId.replace(/^ORD-/, '') !== clean.replace(/^ORD-/, '');
   });
   if (db.orders.length !== initialLen) {
     writeDb(db);
+    if (prismaSync && toDelete) {
+      prismaSync.syncOrderToPostgres(toDelete, 'delete').catch(() => {});
+    }
     return true;
   }
   return false;
@@ -1674,6 +1702,9 @@ function updateSettings(newSettings) {
   const db = readDb();
   db.settings = { ...db.settings, ...newSettings };
   writeDb(db);
+  if (prismaSync) {
+    prismaSync.syncSettingsToPostgres(db.settings).catch(() => {});
+  }
   return db.settings;
 }
 
@@ -1715,6 +1746,7 @@ module.exports = {
   deleteOrder,
   getSettings,
   updateSettings,
-  getStats
+  getStats,
+  getPrismaClient: prismaSync ? prismaSync.getPrismaClient : () => null
 };
 

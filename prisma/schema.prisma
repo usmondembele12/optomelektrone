@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        String    @id
+  name      String
+  name_ru   String?
+  name_en   String?
+  slug      String    @unique
+  icon      String?
+  count     Int       @default(0)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id              Int         @id @default(autoincrement())
+  name            String
+  name_ru         String?
+  name_en         String?
+  slug            String      @unique
+  category        String
+  categoryRel     Category?   @relation(fields: [category], references: [id])
+  categoryName    String?
+  categoryName_ru String?
+  categoryName_en String?
+  brand           String?
+  price           Float
+  oldPrice        Float?
+  wholesalePrice  Float?
+  minWholesaleQty Int         @default(1)
+  stock           Int         @default(0)
+  unit            String      @default("dona")
+  image           String?
+  description     String?
+  description_ru  String?
+  description_en  String?
+  specs           Json?
+  specs_ru        Json?
+  specs_en        Json?
+  rating          Float       @default(5.0)
+  reviewsCount    Int         @default(0)
+  isFeatured      Boolean     @default(false)
+  isPopular       Boolean     @default(false)
+  orderItems      OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([category])
+  @@index([brand])
+  @@index([isFeatured])
+  @@index([isPopular])
+}
+
+model Order {
+  id            String      @id
+  orderNumber   String?
+  customerName  String
+  phone         String
+  address       String?
+  paymentMethod String      @default("naqd")
+  notes         String?
+  totalAmount   Float
+  discount      Float       @default(0)
+  isWholesale   Boolean     @default(false)
+  status        String      @default("yangi")
+  rawItems      Json?
+  items         OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([status])
+  @@index([phone])
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId Int?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  name      String
+  price     Float
+  quantity  Int
+  total     Float
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Setting {
+  id                 String   @id @default("global")
+  siteName           String   @default("OptomElektro")
+  phone              String   @default("+998 71 200 44 44")
+  email              String   @default("info@optomelektro.uz")
+  address            String   @default("Toshkent sh., Chilonzor tumani, Bunyodkor ko'chasi 42-uy")
+  workingHours       String   @default("Har kuni: 08:00 - 20:00")
+  deliveryCost       Float    @default(30000)
+  freeDeliveryMin    Float    @default(500000)
+  wholesaleMinAmount Float    @default(1000000)
+  telegramBotToken   String?
+  telegramChatId     String?
+  adminUsername      String   @default("foden")
+  adminPassword      String   @default("usmon47")
+  updatedAt          DateTime @updatedAt
+}

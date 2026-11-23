@@ -206,6 +206,49 @@ app.post('/api/telegram/test', async (req, res) => {
   }
 });
 
+// Database & Prisma Status
+app.get('/api/db/status', async (req, res) => {
+  const hasDbUrl = !!process.env.DATABASE_URL;
+  let prismaConnected = false;
+  let postgresStats = null;
+  let error = null;
+
+  if (hasDbUrl) {
+    try {
+      const getPrisma = db.getPrismaClient;
+      const prisma = getPrisma ? getPrisma() : null;
+      if (prisma) {
+        const [productCount, categoryCount, orderCount] = await Promise.all([
+          prisma.product.count(),
+          prisma.category.count(),
+          prisma.order.count(),
+        ]);
+        prismaConnected = true;
+        postgresStats = { products: productCount, categories: categoryCount, orders: orderCount };
+      }
+    } catch (err) {
+      error = err.message;
+    }
+  }
+
+  const localStats = db.getStats();
+
+  res.json({
+    status: prismaConnected ? 'connected' : 'fallback',
+    orm: 'Prisma 6.4.1',
+    database: prismaConnected ? 'PostgreSQL' : 'Local JSON Store',
+    hasDatabaseUrlConfigured: hasDbUrl,
+    prismaConnected,
+    postgresStats,
+    localStats: {
+      totalProducts: localStats.totalProducts,
+      totalOrders: localStats.totalOrders,
+      totalRevenue: localStats.totalRevenue,
+    },
+    error: error || undefined,
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`===============================================`);
   console.log(`⚡ OPTOM elektro Backend Server is running!`);
