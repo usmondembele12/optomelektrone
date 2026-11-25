@@ -820,14 +820,34 @@
       }
     }
 
+    async function authFetch(url, options = {}) {
+      const token = sessionStorage.getItem('optom_admin_token') || '';
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+        'Authorization': token ? `Bearer ${token}` : ''
+      };
+      try {
+        const res = await fetch(url, { ...options, headers });
+        if (res.status === 401 && !url.includes('/api/auth/login')) {
+          sessionStorage.removeItem('optom_admin_token');
+          document.getElementById('login-screen').classList.remove('hidden');
+          showToast("Sessiya muddati tugadi. Iltimos, qayta kiring.", true);
+        }
+        return res;
+      } catch (e) {
+        return fetch(url, options);
+      }
+    }
+
     async function refreshAllData() {
       try {
         const [prodRes, catRes, orderRes, statRes, setRes] = await Promise.all([
-          fetch('/api/products?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
-          fetch('/api/categories?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
-          fetch('/api/orders?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
-          fetch('/api/stats?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => ({})),
-          fetch('/api/settings?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => ({}))
+          authFetch('/api/products?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
+          authFetch('/api/categories?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
+          authFetch('/api/orders?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
+          authFetch('/api/stats?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => ({})),
+          authFetch('/api/settings?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => ({}))
         ]);
 
         globalData.products = applyLocalOverrides(Array.isArray(prodRes) ? prodRes : []);
@@ -1030,9 +1050,8 @@
       const newStatus = document.getElementById('modal-status-select').value;
 
       try {
-        const res = await fetch(`/api/orders/${activeModalOrderId}/status`, {
+        const res = await authFetch(`/api/orders/${activeModalOrderId}/status`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: newStatus })
         });
         if (res.ok) {
@@ -1052,7 +1071,7 @@
       if (!confirm(`Haqiqatan ham #${activeModalOrderId} buyurtmani butunlay o'chirmoqchimisiz?`)) return;
 
       try {
-        const res = await fetch(`/api/orders/${activeModalOrderId}`, { method: 'DELETE' });
+        const res = await authFetch(`/api/orders/${activeModalOrderId}`, { method: 'DELETE' });
         if (res.ok) {
           showToast("Buyurtma muvaffaqiyatli o'chirildi!");
           closeOrderModal();
@@ -1367,9 +1386,8 @@
       try {
         let savedProduct = null;
         try {
-          const res = await fetch(url, {
+          const res = await authFetch(url, {
             method,
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
           if (res.ok) {
@@ -1424,7 +1442,7 @@
 
       try {
         try {
-          await fetch(`/api/products/${id}`, { method: 'DELETE' });
+          await authFetch(`/api/products/${id}`, { method: 'DELETE' });
         } catch (_) {}
 
         // Remove from custom products
@@ -1498,9 +1516,8 @@
       }
 
       try {
-        const res = await fetch('/api/settings', {
+        const res = await authFetch('/api/settings', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ adminUsername: u || 'admin', adminPassword: p })
         });
         if (res.ok) {
@@ -1521,9 +1538,8 @@
       const chatId = document.getElementById('tg-chat-id').value.trim();
 
       try {
-        const res = await fetch('/api/settings', {
+        const res = await authFetch('/api/settings', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ telegramBotToken: token, telegramChatId: chatId })
         });
         if (res.ok) {
@@ -1547,9 +1563,8 @@
 
       showToast('Test xabari yuborilmoqda...');
       try {
-        const res = await fetch('/api/telegram/test', {
+        const res = await authFetch('/api/telegram/test', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token, chatId })
         });
         const data = await res.json();
@@ -1572,9 +1587,8 @@
       };
 
       try {
-        const res = await fetch('/api/settings', {
+        const res = await authFetch('/api/settings', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
         if (res.ok) {

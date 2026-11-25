@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 const db = require('../../../../server/db');
+const { verifyAdminRequest, maskOrderPII } = require('../../../../server/security');
 
 export async function GET(request, { params }) {
   try {
@@ -15,7 +16,11 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: "Buyurtma topilmadi" }, { status: 404 });
     }
 
-    return NextResponse.json(order, {
+    const auth = verifyAdminRequest(request);
+    // If admin is requesting, return full details. Otherwise mask sensitive PII for customer tracking.
+    const responseData = auth.authorized ? order : maskOrderPII(order);
+
+    return NextResponse.json(responseData, {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate'
       }
@@ -28,6 +33,13 @@ export async function GET(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
+    const auth = verifyAdminRequest(request);
+    if (!auth.authorized) {
+      return NextResponse.json({ 
+        error: "Ruxsat etilmagan: Faqat admin buyurtmani o'chira oladi" 
+      }, { status: 401 });
+    }
+
     const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: "Buyurtma ID si kiritilmadi" }, { status: 400 });

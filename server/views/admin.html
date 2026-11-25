@@ -338,12 +338,10 @@
             <select id="prod-brand-filter" onchange="renderProductsTable()" class="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="all">Barcha brendlar</option>
               <option value="LUX VOLT">LUX VOLT</option>
-              <option value="Schneider Electric">Schneider Electric</option>
-              <option value="CHINT">CHINT</option>
-              <option value="Andijon Kabel">Andijon Kabel</option>
-              <option value="O'z-kabel">O'z-kabel</option>
-              <option value="IEK">IEK</option>
-              <option value="ZUBR">ZUBR</option>
+              <option value="ELEBOX">ELEBOX</option>
+              <option value="GIP">GIP</option>
+              <option value="HEV">HEV</option>
+              <option value="Standart">Standart</option>
             </select>
           </div>
 
@@ -614,7 +612,7 @@
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Brend *</label>
-            <input type="text" id="form-prod-brand" required class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm" placeholder="LUX VOLT, CHINT...">
+            <input type="text" id="form-prod-brand" required class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm" placeholder="LUX VOLT, ELEBOX, GIP...">
           </div>
         </div>
 
@@ -822,14 +820,34 @@
       }
     }
 
+    async function authFetch(url, options = {}) {
+      const token = sessionStorage.getItem('optom_admin_token') || '';
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+        'Authorization': token ? `Bearer ${token}` : ''
+      };
+      try {
+        const res = await fetch(url, { ...options, headers });
+        if (res.status === 401 && !url.includes('/api/auth/login')) {
+          sessionStorage.removeItem('optom_admin_token');
+          document.getElementById('login-screen').classList.remove('hidden');
+          showToast("Sessiya muddati tugadi. Iltimos, qayta kiring.", true);
+        }
+        return res;
+      } catch (e) {
+        return fetch(url, options);
+      }
+    }
+
     async function refreshAllData() {
       try {
         const [prodRes, catRes, orderRes, statRes, setRes] = await Promise.all([
-          fetch('/api/products?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
-          fetch('/api/categories?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
-          fetch('/api/orders?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
-          fetch('/api/stats?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => ({})),
-          fetch('/api/settings?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => ({}))
+          authFetch('/api/products?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
+          authFetch('/api/categories?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
+          authFetch('/api/orders?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => []),
+          authFetch('/api/stats?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => ({})),
+          authFetch('/api/settings?_t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => ({}))
         ]);
 
         globalData.products = applyLocalOverrides(Array.isArray(prodRes) ? prodRes : []);
@@ -1032,9 +1050,8 @@
       const newStatus = document.getElementById('modal-status-select').value;
 
       try {
-        const res = await fetch(`/api/orders/${activeModalOrderId}/status`, {
+        const res = await authFetch(`/api/orders/${activeModalOrderId}/status`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: newStatus })
         });
         if (res.ok) {
@@ -1054,7 +1071,7 @@
       if (!confirm(`Haqiqatan ham #${activeModalOrderId} buyurtmani butunlay o'chirmoqchimisiz?`)) return;
 
       try {
-        const res = await fetch(`/api/orders/${activeModalOrderId}`, { method: 'DELETE' });
+        const res = await authFetch(`/api/orders/${activeModalOrderId}`, { method: 'DELETE' });
         if (res.ok) {
           showToast("Buyurtma muvaffaqiyatli o'chirildi!");
           closeOrderModal();
@@ -1218,7 +1235,7 @@
             </div>
 
             <div class="footer">
-              Xaridingiz uchun tashakkur! Savollar bo'lsa biz bilan bog'laning: +998 (90) 123-45-67<br>
+              Xaridingiz uchun tashakkur! Savollar bo'lsa biz bilan bog'laning: +998 95 009-09-09 / +998 97 447-47-47<br>
               Hujjat OptomElektro.uz tizimi orqali shakllantirildi.
             </div>
           </div>
@@ -1369,9 +1386,8 @@
       try {
         let savedProduct = null;
         try {
-          const res = await fetch(url, {
+          const res = await authFetch(url, {
             method,
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
           if (res.ok) {
@@ -1426,7 +1442,7 @@
 
       try {
         try {
-          await fetch(`/api/products/${id}`, { method: 'DELETE' });
+          await authFetch(`/api/products/${id}`, { method: 'DELETE' });
         } catch (_) {}
 
         // Remove from custom products
@@ -1478,7 +1494,7 @@
       document.getElementById('tg-chat-id').value = s.telegramChatId || '';
 
       document.getElementById('setting-store-name').value = s.storeName || 'OPTOM elektro';
-      document.getElementById('setting-store-phone').value = s.storePhone || '+998 71 200-00-00';
+      document.getElementById('setting-store-phone').value = s.storePhone || '+998 95 009-09-09';
       document.getElementById('setting-store-address').value = s.storeAddress || '';
       document.getElementById('setting-store-tagline').value = s.storeTagline || '';
 
@@ -1500,9 +1516,8 @@
       }
 
       try {
-        const res = await fetch('/api/settings', {
+        const res = await authFetch('/api/settings', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ adminUsername: u || 'admin', adminPassword: p })
         });
         if (res.ok) {
@@ -1523,9 +1538,8 @@
       const chatId = document.getElementById('tg-chat-id').value.trim();
 
       try {
-        const res = await fetch('/api/settings', {
+        const res = await authFetch('/api/settings', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ telegramBotToken: token, telegramChatId: chatId })
         });
         if (res.ok) {
@@ -1549,9 +1563,8 @@
 
       showToast('Test xabari yuborilmoqda...');
       try {
-        const res = await fetch('/api/telegram/test', {
+        const res = await authFetch('/api/telegram/test', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token, chatId })
         });
         const data = await res.json();
@@ -1574,9 +1587,8 @@
       };
 
       try {
-        const res = await fetch('/api/settings', {
+        const res = await authFetch('/api/settings', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
         if (res.ok) {

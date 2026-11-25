@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 const db = require('../../../server/db');
+const { verifyAdminRequest, sanitizeText } = require('../../../server/security');
 
 export async function GET(request) {
   try {
@@ -29,11 +30,27 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const auth = verifyAdminRequest(request);
+    if (!auth.authorized) {
+      return NextResponse.json({ 
+        error: "Ruxsat etilmagan: Yangi mahsulot qo'shish uchun admin avtorizatsiyasi talab qilinadi" 
+      }, { status: 401 });
+    }
+
     const body = await request.json();
     if (!body || !body.name) {
       return NextResponse.json({ error: "Mahsulot nomi kiritilishi shart!" }, { status: 400 });
     }
-    const newProduct = db.addProduct(body);
+
+    // Sanitize product title
+    const sanitized = {
+      ...body,
+      name: sanitizeText(body.name, 200),
+      brand: sanitizeText(body.brand || 'Standart', 50),
+      category: sanitizeText(body.category || 'avtomatlar', 50),
+    };
+
+    const newProduct = db.addProduct(sanitized);
     return NextResponse.json(newProduct, {
       status: 201,
       headers: {
