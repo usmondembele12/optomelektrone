@@ -90,15 +90,17 @@ export default function PhoneCallModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+    <div className="fixed inset-0 z-50 overflow-y-auto animate-fadeIn">
       {/* Backdrop */}
       <div 
         onClick={onClose} 
         className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity" 
       />
 
-      {/* Modal Dialog */}
-      <div className="relative bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl z-10 my-8 border border-slate-100 overflow-hidden transform transition-all">
+      {/* Centering container with min-h-full to prevent top clipping when viewport is small */}
+      <div className="min-h-full flex items-center justify-center p-4 sm:p-6 text-center">
+        {/* Modal Dialog */}
+        <div className="relative bg-white rounded-3xl max-w-lg w-full p-6 pt-7 sm:p-8 sm:pt-9 shadow-2xl z-10 my-auto text-left border border-slate-100 overflow-hidden transform transition-all">
         
         {/* Decorative Top Accent Bar */}
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-sky-400 to-emerald-500"></div>
@@ -269,5 +271,6 @@ export default function PhoneCallModal({ isOpen, onClose }) {
 
       </div>
     </div>
-  );
+  </div>
+);
 }

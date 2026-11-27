@@ -1,7 +1,6 @@
 "use client";
 
-import Link from 'next/link';
-import { Phone, MapPin, Clock, Send, ShieldCheck } from 'lucide-react';
+import { Phone, MapPin, Clock, Send } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Footer({ onSelectCategory, onOpenCallModal }) {
@@ -100,15 +99,7 @@ export default function Footer({ onSelectCategory, onOpenCallModal }) {
               </li>
             </ul>
 
-            <div className="pt-2">
-              <Link
-                href="/admin"
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-blue-500 transition-colors font-semibold"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-                <span>{t('adminPanel')}</span>
-              </Link>
-            </div>
+
           </div>
 
         </div>

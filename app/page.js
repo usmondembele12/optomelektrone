@@ -90,45 +90,6 @@ export default function HomePage() {
     }
   };
 
-  const handleDeleteProduct = async (id, name) => {
-    try {
-      const custom = JSON.parse(localStorage.getItem('optom_custom_products') || '[]');
-      const filteredCustom = custom.filter(p => String(p.id) !== String(id) && (!name || p.name.toLowerCase() !== name.toLowerCase()));
-      localStorage.setItem('optom_custom_products', JSON.stringify(filteredCustom));
-
-      const deletedIds = JSON.parse(localStorage.getItem('optom_deleted_product_ids') || '[]');
-      if (!deletedIds.map(String).includes(String(id))) {
-        deletedIds.push(String(id));
-        localStorage.setItem('optom_deleted_product_ids', JSON.stringify(deletedIds));
-      }
-
-      if (name) {
-        const deletedNames = JSON.parse(localStorage.getItem('optom_deleted_product_names') || '[]');
-        const cleanName = String(name).toLowerCase().trim();
-        if (!deletedNames.includes(cleanName)) {
-          deletedNames.push(cleanName);
-          localStorage.setItem('optom_deleted_product_names', JSON.stringify(deletedNames));
-        }
-      }
-
-      setProducts(prev => prev.filter(p => String(p.id) !== String(id) && (!name || (p.name && p.name.toLowerCase() !== name.toLowerCase()))));
-
-      try {
-        await fetch(`/api/products/${id}`, { method: 'DELETE' });
-      } catch (_) {}
-
-      try {
-        if (typeof BroadcastChannel !== 'undefined') {
-          new BroadcastChannel('optom_sync').postMessage({ type: 'product_deleted', id, name });
-        }
-      } catch (_) {}
-
-      showToast(t('toastProductDeleted'));
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   const loadData = async () => {
     try {
       const [prodsRes, catsRes] = await Promise.all([
@@ -536,7 +497,6 @@ export default function HomePage() {
                     onAddToCart={(p) => handleAddToCart(p, 1)}
                     onQuickBuy={(p) => setQuickBuyProduct(p)}
                     onOpenDetail={(p) => setDetailProduct(p)}
-                    onDeleteProduct={handleDeleteProduct}
                     isFavorite={favorites.includes(product.id)}
                     onToggleFavorite={handleToggleFavorite}
                     cartQuantity={inCart ? inCart.quantity : 0}

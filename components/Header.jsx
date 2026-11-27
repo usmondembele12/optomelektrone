@@ -10,7 +10,6 @@ import {
   Phone, 
   Clock, 
   Send, 
-  ShieldCheck, 
   ChevronDown,
   LayoutGrid,
   Zap,
@@ -147,15 +146,7 @@ export default function Header({
               <span className="hidden sm:inline">{t('trackOrder')}</span>
             </button>
 
-            {/* Admin Dashboard shortcut */}
-            <Link
-              href="/admin"
-              className="hidden sm:flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-600/30 text-blue-300 hover:bg-blue-600 hover:text-white transition-all font-semibold text-[11px] border border-blue-500/30"
-              title={t('adminPanel')}
-            >
-              <ShieldCheck className="w-3 h-3 text-blue-400" />
-              <span>{t('adminPanel')}</span>
-            </Link>
+
 
             {/* LANGUAGE SELECTOR (UZ / RU / EN) */}
             <div className="relative">

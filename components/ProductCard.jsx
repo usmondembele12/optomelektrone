@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { ShoppingCart, Zap, Check, Heart, Eye, Trash2 } from 'lucide-react';
+import { ShoppingCart, Zap, Check, Heart, Eye } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function ProductCard({ 
@@ -9,7 +9,6 @@ export default function ProductCard({
   onAddToCart, 
   onQuickBuy, 
   onOpenDetail,
-  onDeleteProduct,
   isFavorite = false,
   onToggleFavorite,
   cartQuantity = 0
@@ -49,21 +48,6 @@ export default function ProductCard({
         </div>
 
         <div className="flex items-center gap-1.5 pointer-events-auto">
-          {onDeleteProduct && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (confirm(`"${localizedName}" ${t('deleteProductConfirm')}`)) {
-                  onDeleteProduct(product.id, product.name);
-                }
-              }}
-              className="w-8 h-8 rounded-full bg-white/95 hover:bg-rose-50 text-slate-400 hover:text-rose-600 backdrop-blur-md shadow-sm border border-slate-200/60 flex items-center justify-center transition-all opacity-75 hover:opacity-100"
-              title={t('deleteProductConfirm')}
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          )}
-
           <button
             onClick={(e) => {
               e.stopPropagation();
