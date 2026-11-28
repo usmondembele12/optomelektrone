@@ -2,6 +2,7 @@
 
 import { X, Heart, ShoppingCart, Trash2, Check } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function FavoritesDrawer({
   isOpen,
@@ -14,6 +15,7 @@ export default function FavoritesDrawer({
   onOpenDetail
 }) {
   const { t, getLocalized } = useLanguage();
+  const { formatPrice } = useCurrency();
   if (!isOpen) return null;
 
   const favoriteProducts = products.filter(p => favorites.includes(p.id));
@@ -134,11 +136,11 @@ export default function FavoritesDrawer({
                       <div className="flex items-center justify-between pt-2">
                         <div>
                           <p className="font-black text-xs text-slate-900">
-                            {Number(product.price).toLocaleString('uz-UZ')} {t('som')}
+                            {formatPrice(product.price)}
                           </p>
                           {product.wholesalePrice && (
                             <span className="text-[10px] text-blue-600 font-bold block">
-                              {t('wholesalePriceLabel')} {Number(product.wholesalePrice).toLocaleString('uz-UZ')} {t('som')}
+                              {t('wholesalePriceLabel')} {formatPrice(product.wholesalePrice)}
                             </span>
                           )}
                         </div>

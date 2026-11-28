@@ -16,6 +16,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function CheckoutModal({
   isOpen,
@@ -24,6 +25,7 @@ export default function CheckoutModal({
   onOrderSuccess
 }) {
   const { t } = useLanguage();
+  const { formatPrice, formatSecondaryPrice, currency, usdRate } = useCurrency();
   const [formData, setFormData] = useState({
     customerName: '',
     phone: '+998 ',
@@ -84,7 +86,9 @@ export default function CheckoutModal({
           total: price * item.quantity
         };
       }),
-      totalAmount: totalAmount
+      totalAmount: totalAmount,
+      currency: currency,
+      usdRate: usdRate
     };
 
     try {
@@ -165,11 +169,16 @@ export default function CheckoutModal({
                 <span className="text-slate-500">{t('yourPhone')}:</span>
                 <strong className="text-slate-800 font-mono">{successOrder.phone}</strong>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-baseline">
                 <span className="text-slate-500">{t('totalLabel')}</span>
-                <strong className="text-blue-600 font-bold text-sm">
-                  {Number(successOrder.totalAmount).toLocaleString('uz-UZ')} {t('som')}
-                </strong>
+                <div className="text-right">
+                  <strong className="text-blue-600 font-bold text-sm block">
+                    {formatPrice(successOrder.totalAmount)}
+                  </strong>
+                  <span className="text-[10px] text-slate-400 font-bold">
+                    {formatSecondaryPrice(successOrder.totalAmount)}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -399,8 +408,11 @@ export default function CheckoutModal({
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                 <div>
                   <span className="text-xs text-slate-500">{t('totalLabel')}</span>
-                  <p className="text-xl font-black text-slate-900">
-                    {Number(totalAmount).toLocaleString('uz-UZ')} {t('som')}
+                  <p className="text-xl font-black text-slate-900 leading-tight">
+                    {formatPrice(totalAmount)}
+                  </p>
+                  <p className="text-[11px] font-bold text-slate-400 mt-0.5">
+                    {formatSecondaryPrice(totalAmount)}
                   </p>
                 </div>
 

@@ -205,7 +205,8 @@ function filterPublicSettings(settings = {}) {
     deliveryCost: settings.deliveryCost || 30000,
     freeDeliveryMin: settings.freeDeliveryMin || 1000000,
     wholesaleMinAmount: settings.wholesaleMinAmount || 2000000,
-    storeTelegram: settings.storeTelegram || "https://t.me/optomelektro"
+    storeTelegram: settings.storeTelegram || "https://t.me/optomelektro",
+    usdRate: Number(settings.usdRate) || 12850
   };
   return safe;
 }

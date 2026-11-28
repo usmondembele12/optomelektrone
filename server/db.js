@@ -2054,6 +2054,7 @@ const INITIAL_SETTINGS = {
   telegramChatId: '8038275900',
   freeDeliveryThreshold: 5000000,
   deliveryFee: 40000,
+  usdRate: 12850,
   adminUsername: 'foden',
   adminPassword: 'usmon47'
 };

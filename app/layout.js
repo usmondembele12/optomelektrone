@@ -1,5 +1,6 @@
 import "./globals.css";
 import { LanguageProvider } from "../context/LanguageContext";
+import { CurrencyProvider } from "../context/CurrencyContext";
 
 export const metadata = {
   title: "OPTOM ELEKTRO — Elektr jihozlari va kabellarning ulgurji savdo markazi",
@@ -19,7 +20,9 @@ export default function RootLayout({ children }) {
       </head>
       <body className="min-h-full flex flex-col font-sans bg-slate-50 text-slate-800">
         <LanguageProvider>
-          {children}
+          <CurrencyProvider>
+            {children}
+          </CurrencyProvider>
         </LanguageProvider>
       </body>
     </html>

@@ -2136,6 +2136,7 @@
     "storeTagline": "LUX VOLT, ELEBOX va GIP elektrotexnika mahsulotlarining rasmiy ulgurji va chakana savdo markazi",
     "storeTelegram": "https://t.me/optomelektro",
     "adminPasswordHash": "d8c049b231e3a11f7f1bfdfc0fdbaf6ae81c3049ad19b6263cd89a13e4474fa9266f7301c0b7e5a1f5c8e6a70c2484f0e533e1186651ece46b3f4a03b564ffda",
-    "adminPasswordSalt": "7ded812d32064d68d765c60b595c2db1"
+    "adminPasswordSalt": "7ded812d32064d68d765c60b595c2db1",
+    "usdRate": 12850
   }
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { X, Send, CheckCircle2, Phone, User, Zap, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function QuickBuyModal({
   product,
@@ -11,6 +12,7 @@ export default function QuickBuyModal({
   onSuccess
 }) {
   const { t, getLocalized } = useLanguage();
+  const { formatPrice, formatSecondaryPrice, currency, usdRate } = useCurrency();
   const [customerName, setCustomerName] = useState('');
   const [phone, setPhone] = useState('+998 ');
   const [quantity, setQuantity] = useState(1);
@@ -58,7 +60,9 @@ export default function QuickBuyModal({
           total: totalPrice
         }
       ],
-      totalAmount: totalPrice
+      totalAmount: totalPrice,
+      currency: currency,
+      usdRate: usdRate
     };
 
     try {
@@ -146,8 +150,9 @@ export default function QuickBuyModal({
                 <p className="text-xs font-bold text-slate-800 line-clamp-1">{localizedName}</p>
                 <div className="flex items-baseline gap-2 mt-0.5">
                   <span className="text-xs font-black text-blue-600">
-                    {Number(unitPrice).toLocaleString('uz-UZ')} {t('som')}
+                    {formatPrice(unitPrice)}
                   </span>
+                  <span className="text-[10px] text-slate-400 font-bold">{formatSecondaryPrice(unitPrice)}</span>
                   <span className="text-[10px] text-slate-400">/{localizedUnit}</span>
                 </div>
               </div>
@@ -216,8 +221,11 @@ export default function QuickBuyModal({
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
                 <div>
                   <span className="text-slate-400 text-[11px]">{t('totalLabel')}</span>
-                  <p className="text-base font-black text-slate-900">
-                    {Number(totalPrice).toLocaleString('uz-UZ')} {t('som')}
+                  <p className="text-base font-black text-slate-900 leading-tight">
+                    {formatPrice(totalPrice)}
+                  </p>
+                  <p className="text-[10px] font-bold text-slate-400 mt-0.5">
+                    {formatSecondaryPrice(totalPrice)}
                   </p>
                 </div>
 

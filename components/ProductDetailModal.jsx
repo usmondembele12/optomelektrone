@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { X, ShoppingCart, Zap, Sparkles, Send, Phone } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function ProductDetailModal({
   product,
@@ -13,6 +14,7 @@ export default function ProductDetailModal({
   cartQuantity = 0
 }) {
   const { t, getLocalized } = useLanguage();
+  const { formatPrice, formatSecondaryPrice } = useCurrency();
   const [quantity, setQuantity] = useState(1);
 
   if (!isOpen || !product) return null;
@@ -37,7 +39,7 @@ export default function ProductDetailModal({
   const localizedSpecs = getLocalized(product, 'specs');
 
   const handleShareTelegram = () => {
-    const text = encodeURIComponent(`⚡ ${localizedName}\n💰 ${Number(currentPrice).toLocaleString('uz-UZ')} ${t('som')}\n🏬 OPTOM elektro`);
+    const text = encodeURIComponent(`⚡ ${localizedName}\n💰 ${formatPrice(currentPrice)}\n🏬 OPTOM elektro`);
     const url = encodeURIComponent(typeof window !== 'undefined' ? window.location.href : 'https://optomelektro.uz');
     window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
   };
@@ -88,16 +90,21 @@ export default function ProductDetailModal({
 
               {/* Pricing Box */}
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2">
-                <div className="flex items-baseline gap-3">
-                  <span className="text-2xl sm:text-3xl font-black text-slate-900">
-                    {Number(currentPrice).toLocaleString('uz-UZ')} <span className="text-sm font-bold text-slate-500">{t('som')}</span>
-                  </span>
-                  {product.oldPrice && (
-                    <span className="text-sm text-slate-400 line-through font-semibold">
-                      {Number(product.oldPrice).toLocaleString('uz-UZ')} {t('som')}
+                <div className="flex flex-col">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-2xl sm:text-3xl font-black text-slate-900">
+                      {formatPrice(currentPrice)}
                     </span>
-                  )}
-                  <span className="text-xs text-slate-400">/{localizedUnit}</span>
+                    {product.oldPrice && (
+                      <span className="text-sm text-slate-400 line-through font-semibold">
+                        {formatPrice(product.oldPrice)}
+                      </span>
+                    )}
+                    <span className="text-xs text-slate-400">/{localizedUnit}</span>
+                  </div>
+                  <span className="text-xs font-bold text-slate-400 mt-0.5">
+                    {formatSecondaryPrice(currentPrice)}
+                  </span>
                 </div>
 
                 {product.wholesalePrice && (
@@ -105,7 +112,7 @@ export default function ProductDetailModal({
                     <div className="flex items-center justify-between text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200/80 p-2.5 rounded-xl">
                       <div className="flex items-center gap-2">
                         <Zap className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                        <span>{t('wholesalePriceLabel')} <strong>{Number(product.wholesalePrice).toLocaleString('uz-UZ')} {t('som')}</strong> ({product.minWholesaleQty || 10}+ {localizedUnit})</span>
+                        <span>{t('wholesalePriceLabel')} <strong>{formatPrice(product.wholesalePrice)}</strong> ({product.minWholesaleQty || 10}+ {localizedUnit})</span>
                       </div>
                       {neededForWholesale > 0 && (
                         <button
@@ -122,7 +129,7 @@ export default function ProductDetailModal({
                     {isWholesale && wholesaleSavings > 0 && (
                       <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800 flex items-center gap-2 animate-pulse">
                         <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                        <span>{t('wholesaleDiscountSuccess')} {t('savedAmountNotice')} <strong>{Number(wholesaleSavings).toLocaleString('uz-UZ')} {t('som')}</strong></span>
+                        <span>{t('wholesaleDiscountSuccess')} {t('savedAmountNotice')} <strong>{formatPrice(wholesaleSavings)}</strong></span>
                       </div>
                     )}
                   </div>
@@ -169,7 +176,10 @@ export default function ProductDetailModal({
                 <div className="flex-1 text-right">
                   <span className="text-xs text-slate-400">{t('totalLabel')}</span>
                   <p className="text-lg font-black text-blue-600 leading-none">
-                    {Number(totalPrice).toLocaleString('uz-UZ')} {t('som')}
+                    {formatPrice(totalPrice)}
+                  </p>
+                  <p className="text-[11px] font-bold text-slate-400 mt-0.5">
+                    {formatSecondaryPrice(totalPrice)}
                   </p>
                 </div>
               </div>

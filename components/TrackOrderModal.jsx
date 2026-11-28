@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import { X, Search, Package, Clock, CheckCircle2, Truck, AlertCircle, ShoppingBag } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function TrackOrderModal({ isOpen, onClose }) {
   const { t } = useLanguage();
+  const { formatPrice, formatSecondaryPrice } = useCurrency();
   const [orderId, setOrderId] = useState('');
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState(null);
@@ -127,7 +129,8 @@ export default function TrackOrderModal({ isOpen, onClose }) {
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t('totalLabel')}</span>
-                  <p className="font-black text-blue-600 text-base">{Number(order.totalAmount).toLocaleString('uz-UZ')} {t('som')}</p>
+                  <p className="font-black text-blue-600 text-base leading-tight">{formatPrice(order.totalAmount)}</p>
+                  <span className="text-[10px] text-slate-400 font-bold block mt-0.5">{formatSecondaryPrice(order.totalAmount)}</span>
                 </div>
               </div>
 
@@ -189,7 +192,7 @@ export default function TrackOrderModal({ isOpen, onClose }) {
                   <div key={idx} className="p-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs">
                     <span className="font-semibold text-slate-800 truncate mr-2">{item.name}</span>
                     <span className="text-slate-500 font-bold whitespace-nowrap">
-                      {item.quantity} {item.unit || 'dona'} × {Number(item.price).toLocaleString('uz-UZ')} {t('som')}
+                      {item.quantity} {item.unit || 'dona'} × {formatPrice(item.price)}
                     </span>
                   </div>
                 ))}

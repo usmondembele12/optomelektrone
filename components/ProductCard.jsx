@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ShoppingCart, Zap, Check, Heart, Eye } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function ProductCard({ 
   product, 
@@ -14,11 +15,8 @@ export default function ProductCard({
   cartQuantity = 0
 }) {
   const { t, getLocalized } = useLanguage();
+  const { formatPrice, formatSecondaryPrice } = useCurrency();
   const [isHovered, setIsHovered] = useState(false);
-
-  const priceFormatted = Number(product.price).toLocaleString('uz-UZ');
-  const oldPriceFormatted = product.oldPrice ? Number(product.oldPrice).toLocaleString('uz-UZ') : null;
-  const wholesalePriceFormatted = product.wholesalePrice ? Number(product.wholesalePrice).toLocaleString('uz-UZ') : null;
 
   const validImage = (product.image && (product.image.startsWith('/') || product.image.startsWith('http')))
     ? product.image
@@ -119,7 +117,7 @@ export default function ProductCard({
                 {t('wholesalePriceLabel')}
               </span>
               <span className="font-extrabold text-blue-800">
-                {wholesalePriceFormatted} {t('som')}
+                {formatPrice(product.wholesalePrice)}
               </span>
             </div>
           )}
@@ -128,16 +126,21 @@ export default function ProductCard({
         {/* PRICING & BUTTONS */}
         <div className="pt-2 border-t border-slate-100 space-y-2.5">
           {/* Prices */}
-          <div className="flex items-baseline gap-2">
-            <span className="text-lg font-black text-slate-900">
-              {priceFormatted} <span className="text-xs font-bold text-slate-500">{t('som')}</span>
-            </span>
-            {oldPriceFormatted && (
-              <span className="text-xs text-slate-400 line-through font-medium">
-                {oldPriceFormatted} {t('som')}
+          <div className="flex flex-col">
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-black text-slate-900">
+                {formatPrice(product.price)}
               </span>
-            )}
-            <span className="text-[10px] text-slate-400">/{localizedUnit}</span>
+              {product.oldPrice && (
+                <span className="text-xs text-slate-400 line-through font-medium">
+                  {formatPrice(product.oldPrice)}
+                </span>
+              )}
+              <span className="text-[10px] text-slate-400">/{localizedUnit}</span>
+            </div>
+            <span className="text-[11px] font-bold text-slate-400 -mt-0.5">
+              {formatSecondaryPrice(product.price)}
+            </span>
           </div>
 
           {/* Action Buttons */}

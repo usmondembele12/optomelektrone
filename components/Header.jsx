@@ -18,6 +18,7 @@ import {
   Globe
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function Header({ 
   cartCount = 0, 
@@ -36,6 +37,7 @@ export default function Header({
   onOpenCallModal
 }) {
   const { lang, setLang, t, getLocalized, languages, currentLangObj } = useLanguage();
+  const { currency, setCurrency, toggleCurrency, usdRate, formatPrice } = useCurrency();
   const [selectedCity, setSelectedCity] = useState("Toshkent");
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [showTopLangDropdown, setShowTopLangDropdown] = useState(false);
@@ -146,7 +148,42 @@ export default function Header({
               <span className="hidden sm:inline">{t('trackOrder')}</span>
             </button>
 
+            {/* LIVE USD RATE BADGE */}
+            <div 
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px]" 
+              title={t('usdRateDesc')}
+            >
+              <span className="text-emerald-400 font-black">$ 1</span>
+              <span className="text-slate-500">=</span>
+              <span className="font-mono font-bold text-white">{Number(usdRate).toLocaleString('uz-UZ')} {t('som')}</span>
+            </div>
 
+            {/* CURRENCY SWITCHER (UZS / USD) */}
+            <div className="flex items-center bg-slate-900/90 rounded-lg p-0.5 border border-slate-700/80 shadow-inner">
+              <button
+                onClick={() => setCurrency('UZS')}
+                className={`px-2 py-0.5 rounded-md text-[11px] font-extrabold tracking-wide transition-all ${
+                  currency === 'UZS'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title={t('currencyUzs')}
+              >
+                SO'M
+              </button>
+              <button
+                onClick={() => setCurrency('USD')}
+                className={`px-2 py-0.5 rounded-md text-[11px] font-extrabold tracking-wide transition-all flex items-center gap-1 ${
+                  currency === 'USD'
+                    ? 'bg-emerald-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title={t('currencyUsd')}
+              >
+                <span>$</span>
+                <span>USD</span>
+              </button>
+            </div>
 
             {/* LANGUAGE SELECTOR (UZ / RU / EN) */}
             <div className="relative">
@@ -274,7 +311,7 @@ export default function Header({
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className="text-xs font-black text-blue-600">{Number(item.price).toLocaleString('uz-UZ')} {t('som')}</p>
+                      <p className="text-xs font-black text-blue-600">{formatPrice(item.price)}</p>
                       <span className="text-[10px] text-emerald-600 font-bold">{t('inStock')}</span>
                     </div>
                   </button>
@@ -327,9 +364,27 @@ export default function Header({
               <div className="hidden sm:flex flex-col text-left">
                 <span className="text-[10px] font-bold text-slate-500 uppercase leading-none">{t('cart')}</span>
                 <span className="text-xs font-black text-slate-900 leading-tight">
-                  {cartTotal > 0 ? `${Number(cartTotal).toLocaleString('uz-UZ')} ${t('som')}` : t('cartEmpty')}
+                  {cartTotal > 0 ? formatPrice(cartTotal) : t('cartEmpty')}
                 </span>
               </div>
+            </button>
+
+            {/* Quick Currency Switch Button */}
+            <button
+              onClick={toggleCurrency}
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border text-xs font-black shadow-sm transition-all active:scale-95 ${
+                currency === 'USD'
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100'
+                  : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
+              }`}
+              title={currency === 'UZS' ? "AQSH Dollariga o'tish ($)" : "O'zbek so'miga o'tish (SO'M)"}
+            >
+              <span className={`w-5 h-5 rounded-lg flex items-center justify-center text-[11px] font-black text-white shadow-xs ${
+                currency === 'USD' ? 'bg-emerald-600' : 'bg-blue-600'
+              }`}>
+                {currency === 'USD' ? '$' : 'S'}
+              </span>
+              <span className="tracking-wider">{currency}</span>
             </button>
 
             {/* Language Selector in Main Header */}

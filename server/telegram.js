@@ -21,14 +21,17 @@ function truncateString(str, maxLength = 3900) {
   return str.slice(0, maxLength - 80) + '\n\n⚠️ <i>... [Xabar uzunligi tufayli qisqartirildi. To\'liq ma\'lumot admin panelda]</i>';
 }
 
-function buildHtmlMessage(order) {
+function buildHtmlMessage(order, settings = {}) {
+  const usdRate = Number(settings?.usdRate) || 12850;
+  const totalUsd = ((order.totalAmount || 0) / usdRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const items = order.items || [];
   const itemsList = items.map((item, idx) => {
     const priceFormatted = Number(item.price || 0).toLocaleString('uz-UZ');
     const totalFormatted = Number(item.total || (item.price * item.quantity)).toLocaleString('uz-UZ');
+    const itemUsd = ((item.total || (item.price * item.quantity)) / usdRate).toFixed(2);
     const unit = escapeHtml(item.unit || 'dona');
     const itemName = escapeHtml(item.name || 'Nomsiz mahsulot');
-    return `<b>${idx + 1}. ${itemName}</b>\n    └ ${item.quantity} ${unit} × ${priceFormatted} = <b>${totalFormatted} so'm</b>`;
+    return `<b>${idx + 1}. ${itemName}</b>\n    └ ${item.quantity} ${unit} × ${priceFormatted} = <b>${totalFormatted} so'm</b> <i>($${itemUsd})</i>`;
   }).join('\n\n');
 
   const deliveryMap = {
@@ -71,7 +74,7 @@ ${notesBlock}📦 <b>MAHSULOTLAR RO'YXATI:</b>
 ${itemsList || "Mahsulotlar mavjud emas"}
 
 ━━━━━━━━━━━━━━━━━━━━━━
-💰 <b>JAMI SUMMA:</b> <b>${Number(order.totalAmount || 0).toLocaleString('uz-UZ')} so'm</b>
+💰 <b>JAMI SUMMA:</b> <b>${Number(order.totalAmount || 0).toLocaleString('uz-UZ')} so'm</b> <i>($${totalUsd})</i>
 🕒 <b>Vaqt:</b> ${dateFormatted}
 ━━━━━━━━━━━━━━━━━━━━━━
 <i>🤖 OPTOM elektro savdo tizimi</i>
@@ -80,14 +83,17 @@ ${itemsList || "Mahsulotlar mavjud emas"}
   return truncateString(rawMessage);
 }
 
-function buildPlainTextMessage(order) {
+function buildPlainTextMessage(order, settings = {}) {
+  const usdRate = Number(settings?.usdRate) || 12850;
+  const totalUsd = ((order.totalAmount || 0) / usdRate).toFixed(2);
   const items = order.items || [];
   const itemsList = items.map((item, idx) => {
     const priceFormatted = Number(item.price || 0).toLocaleString('uz-UZ');
     const totalFormatted = Number(item.total || (item.price * item.quantity)).toLocaleString('uz-UZ');
+    const itemUsd = ((item.total || (item.price * item.quantity)) / usdRate).toFixed(2);
     const unit = item.unit || 'dona';
     const itemName = item.name || 'Nomsiz mahsulot';
-    return `${idx + 1}. ${itemName}\n   └ ${item.quantity} ${unit} x ${priceFormatted} = ${totalFormatted} so'm`;
+    return `${idx + 1}. ${itemName}\n   └ ${item.quantity} ${unit} x ${priceFormatted} = ${totalFormatted} so'm ($${itemUsd})`;
   }).join('\n\n');
 
   const deliveryMap = {
@@ -126,7 +132,7 @@ ${notesBlock}MAHSULOTLAR RO'YXATI:
 ${itemsList || "Mahsulotlar mavjud emas"}
 
 ----------------------------------------
-JAMI SUMMA: ${Number(order.totalAmount || 0).toLocaleString('uz-UZ')} so'm
+JAMI SUMMA: ${Number(order.totalAmount || 0).toLocaleString('uz-UZ')} so'm ($${totalUsd})
 Vaqt: ${dateFormatted}
 ----------------------------------------
 OPTOM elektro tizimidan avtomatik xabar
@@ -200,8 +206,8 @@ async function sendTelegramOrderNotification(order, settings = {}) {
     return { success: false, skipped: true, reason: 'Yaroqli Chat ID topilmadi' };
   }
 
-  const htmlText = buildHtmlMessage(order);
-  const plainText = buildPlainTextMessage(order);
+  const htmlText = buildHtmlMessage(order, settings);
+  const plainText = buildPlainTextMessage(order, settings);
 
   const deliveryReport = [];
 

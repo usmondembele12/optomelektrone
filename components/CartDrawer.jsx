@@ -2,6 +2,7 @@
 
 import { X, Trash2, Plus, Minus, ArrowRight, ShoppingBag, Zap, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function CartDrawer({
   isOpen,
@@ -12,6 +13,7 @@ export default function CartDrawer({
   onOpenCheckout
 }) {
   const { t, getLocalized } = useLanguage();
+  const { formatPrice, formatSecondaryPrice } = useCurrency();
   if (!isOpen) return null;
 
   const FREE_DELIVERY_THRESHOLD = 5000000; // 5 mln UZS
@@ -62,13 +64,13 @@ export default function CartDrawer({
             {subtotal >= FREE_DELIVERY_THRESHOLD ? (
               <p className="font-bold text-emerald-700 flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>{t('prop2Title')} (0 {t('som')})</span>
+                <span>{t('prop2Title')} ({formatPrice(0)})</span>
               </p>
             ) : (
               <div className="space-y-1.5">
                 <div className="flex justify-between text-slate-700 font-medium">
                   <span>{t('prop2Title')}:</span>
-                  <strong className="text-blue-700">{Number(FREE_DELIVERY_THRESHOLD - subtotal).toLocaleString('uz-UZ')} {t('som')}</strong>
+                  <strong className="text-blue-700">{formatPrice(FREE_DELIVERY_THRESHOLD - subtotal)}</strong>
                 </div>
                 <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                   <div 
@@ -162,10 +164,10 @@ export default function CartDrawer({
                         {/* Price */}
                         <div className="text-right">
                           <p className="font-black text-sm text-slate-900">
-                            {Number(itemTotal).toLocaleString('uz-UZ')} {t('som')}
+                            {formatPrice(itemTotal)}
                           </p>
                           <p className="text-[10px] text-slate-400">
-                            {Number(activePrice).toLocaleString('uz-UZ')} {t('som')}/{itemUnit}
+                            {formatPrice(activePrice)}/{itemUnit}
                           </p>
                         </div>
                       </div>
@@ -182,19 +184,24 @@ export default function CartDrawer({
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between text-slate-600 font-medium">
                   <span>{t('orderTotal')}</span>
-                  <span className="font-bold text-slate-900">{Number(subtotal).toLocaleString('uz-UZ')} {t('som')}</span>
+                  <span className="font-bold text-slate-900">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-slate-600 font-medium">
                   <span>{t('deliveryMethodTitle')}:</span>
                   <span className={`font-bold ${deliveryFee === 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
-                    {deliveryFee === 0 ? '0 ' + t('som') : `${Number(deliveryFee).toLocaleString('uz-UZ')} ${t('som')}`}
+                    {deliveryFee === 0 ? formatPrice(0) : formatPrice(deliveryFee)}
                   </span>
                 </div>
                 <div className="pt-2 border-t border-slate-200 flex justify-between items-baseline">
                   <span className="text-sm font-bold text-slate-900">{t('totalLabel')}</span>
-                  <span className="text-xl font-black text-blue-600">
-                    {Number(totalAmount).toLocaleString('uz-UZ')} {t('som')}
-                  </span>
+                  <div className="text-right">
+                    <p className="text-xl font-black text-blue-600 leading-tight">
+                      {formatPrice(totalAmount)}
+                    </p>
+                    <p className="text-[11px] font-bold text-slate-400 mt-0.5">
+                      {formatSecondaryPrice(totalAmount)}
+                    </p>
+                  </div>
                 </div>
               </div>
 

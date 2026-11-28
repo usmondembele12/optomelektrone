@@ -466,6 +466,41 @@
             <input type="text" id="setting-store-tagline" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm">
           </div>
 
+          <!-- USD Exchange Rate Setting -->
+          <div class="p-5 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200/80 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shadow-sm">$</span>
+                <div>
+                  <h4 class="font-bold text-slate-900 text-sm">AQSH Dollari Kursi (USD Exchange Rate)</h4>
+                  <p class="text-xs text-slate-500">1 AQSH Dollari ($) necha so'mga tengligi</p>
+                </div>
+              </div>
+              <span class="text-xs font-mono font-bold text-emerald-700 bg-white px-3 py-1 rounded-lg border border-emerald-200" id="usd-rate-preview">
+                1 $ = 12 850 so'm
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">1 $ kursi (so'mda)</label>
+                <input 
+                  type="number" 
+                  id="setting-usd-rate" 
+                  step="10" 
+                  min="1000" 
+                  max="100000" 
+                  oninput="updateUsdRatePreview(this.value)" 
+                  class="w-full px-4 py-2.5 rounded-xl bg-white border border-emerald-300 text-sm font-bold font-mono text-slate-900 shadow-sm focus:ring-2 focus:ring-emerald-500" 
+                  placeholder="12850"
+                >
+              </div>
+              <div class="flex flex-col justify-end text-[11px] text-slate-500 pb-1">
+                <span>💡 Dollar kursi tushsa yoki ko'tarilsa, shu yerni yangilab "Saqlash" tugmasini bosing. Butun saytdagi hamma narxlar avtomatik yangilanadi.</span>
+              </div>
+            </div>
+          </div>
+
           <div class="pt-4">
             <button onclick="saveStoreSettings()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-all shadow-md shadow-blue-600/20">
               Ma'lumotlarni Saqlash
@@ -619,15 +654,17 @@
         <div class="grid grid-cols-3 gap-4">
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Chakana Narx (so'm) *</label>
-            <input type="number" id="form-prod-price" required class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm" placeholder="25000">
+            <input type="number" id="form-prod-price" required oninput="calcUsdPreview()" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold font-mono" placeholder="25000">
+            <span id="preview-prod-price-usd" class="text-[11px] font-bold text-emerald-600 block mt-1"></span>
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Optom Narx (so'm)</label>
-            <input type="number" id="form-prod-wholesale" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm" placeholder="20000">
+            <input type="number" id="form-prod-wholesale" oninput="calcUsdPreview()" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold font-mono" placeholder="20000">
+            <span id="preview-prod-wholesale-usd" class="text-[11px] font-bold text-emerald-600 block mt-1"></span>
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Ombordagi Soni *</label>
-            <input type="number" id="form-prod-stock" required class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm" placeholder="100">
+            <input type="number" id="form-prod-stock" required class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold font-mono" placeholder="100">
           </div>
         </div>
 
@@ -1343,6 +1380,7 @@
       document.getElementById('form-prod-brand').value = prod.brand;
       document.getElementById('form-prod-price').value = prod.price;
       document.getElementById('form-prod-wholesale').value = prod.wholesalePrice;
+      calcUsdPreview();
       document.getElementById('form-prod-stock').value = prod.stock;
       document.getElementById('form-prod-unit').value = prod.unit || 'dona';
       document.getElementById('form-prod-image').value = prod.image || '';
@@ -1498,6 +1536,12 @@
       document.getElementById('setting-store-address').value = s.storeAddress || '';
       document.getElementById('setting-store-tagline').value = s.storeTagline || '';
 
+      if (document.getElementById('setting-usd-rate')) {
+        const rate = s.usdRate || 12850;
+        document.getElementById('setting-usd-rate').value = rate;
+        updateUsdRatePreview(rate);
+      }
+
       if (document.getElementById('setting-admin-username')) {
         document.getElementById('setting-admin-username').value = s.adminUsername || 'admin';
       }
@@ -1578,6 +1622,31 @@
       }
     }
 
+    function updateUsdRatePreview(val) {
+      const num = Number(val) || 12850;
+      const el = document.getElementById('usd-rate-preview');
+      if (el) el.textContent = `1 $ = ${num.toLocaleString('uz-UZ')} so'm`;
+      calcUsdPreview();
+    }
+
+    function calcUsdPreview() {
+      const rateEl = document.getElementById('setting-usd-rate');
+      const rate = Number(rateEl ? rateEl.value : 0) || (globalData.settings && globalData.settings.usdRate) || 12850;
+
+      const priceVal = Number(document.getElementById('form-prod-price')?.value || 0);
+      const wholesaleVal = Number(document.getElementById('form-prod-wholesale')?.value || 0);
+
+      const priceUsdEl = document.getElementById('preview-prod-price-usd');
+      const wholesaleUsdEl = document.getElementById('preview-prod-wholesale-usd');
+
+      if (priceUsdEl) {
+        priceUsdEl.textContent = priceVal > 0 ? `≈ $ ${(priceVal / rate).toFixed(2)}` : '';
+      }
+      if (wholesaleUsdEl) {
+        wholesaleUsdEl.textContent = wholesaleVal > 0 ? `≈ $ ${(wholesaleVal / rate).toFixed(2)}` : '';
+      }
+    }
+
     async function saveStoreSettings() {
       const payload = {
         storeName: document.getElementById('setting-store-name').value.trim(),
@@ -1585,6 +1654,11 @@
         storeAddress: document.getElementById('setting-store-address').value.trim(),
         storeTagline: document.getElementById('setting-store-tagline').value.trim()
       };
+
+      const rateInput = document.getElementById('setting-usd-rate');
+      if (rateInput && rateInput.value) {
+        payload.usdRate = Number(rateInput.value) || 12850;
+      }
 
       try {
         const res = await authFetch('/api/settings', {
